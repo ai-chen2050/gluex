@@ -20,9 +20,9 @@ jobs:
           node-version: "16"
 
       - name: dependence
-        working-directory: ../app
+        working-directory: ./app/
         run: yarn install
       
       - name: Build
-        working-directory: ../app
+        working-directory: ./app/
         run: yarn build
