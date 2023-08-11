@@ -1,4 +1,6 @@
 name: glueu
+
+on:
   push:
     branches:
       - master
@@ -12,10 +14,15 @@ jobs:
         with:
           path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
+
       - uses: actions/setup-node@v2
         with:
           node-version: "16"
-      - working-directory: ../app
-      - run: yarn install
+
+      - name: dependence
+        working-directory: ../app
+        run: yarn install
+      
       - name: Build
+        working-directory: ../app
         run: yarn build
