@@ -9,11 +9,11 @@ export const Footer: FC = () => {
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-8 md:space-x-12 relative">
                         <div className='flex flex-col col-span-2 mx-4 items-center md:items-start'>
                             <div className='flex flex-row ml-1'>
-                                <Link href="https://solana.com" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                <Link href="https://ai-chen2050.github.io/gluex" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     <div className='flex flex-row ml-1'>
                                         <Image
                                             src="/gluex/glueX.png"
-                                            alt="solana icon"
+                                            alt="glueX icon"
                                             width={156}
                                             height={96}
                                         />
@@ -21,7 +21,7 @@ export const Footer: FC = () => {
                                 </Link>
                             </div>
                             <div className="flex md:ml-2">
-                                <a href="https://twitter.com/solana_devs" type="button" className="border-white text-secondary hover:text-white leading-normal hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out w-9 h-9 m-1">
+                                <a href="https://www.twitter.com/Mr_chen5694" type="button" className="border-white text-secondary hover:text-white leading-normal hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out w-9 h-9 m-1">
                                     <svg aria-hidden="true"
                                         focusable="false"
                                         data-prefix="fab"
@@ -37,7 +37,7 @@ export const Footer: FC = () => {
                                     ></path>
                                     </svg>
                                 </a>
-                                <a href="https://github.com/solana-labs"  type="button" className="border-white text-secondary hover:text-white leading-normal hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out w-9 h-9 m-1">
+                                <a href="https://github.com/ai-chen2050/gluex"  type="button" className="border-white text-secondary hover:text-white leading-normal hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out w-9 h-9 m-1">
                                     <svg aria-hidden="true"
                                         focusable="false"
                                         data-prefix="fab"
@@ -55,21 +55,21 @@ export const Footer: FC = () => {
                                 </a>
                             </div>
                             <div className="mb-6 m-1 sm:text-left place-items-start items-start font-normal tracking-tight text-secondary">
-                                        © 2023 Solana Foundation
+                                        © 2023 Crypto GlueX
                             </div>
                         </div>
 
                         <div className="mb-6 items-center mx-auto max-w-screen-lg">
-                            <div className="font-normal capitalize mb-2.5">SOLANA</div>
+                            <div className="font-normal capitalize mb-2.5">GLUEX</div>
 
                             <div className="flex flex-col mb-0 gap-2">
-                                <Link href="https://solana.com" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
-                                    Labs
+                                <Link href="https://ai-chen2050.github.io/gluex" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                    Docs
                                 </Link>
-                                <Link href="https://solana.org" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
-                                    Foundation
+                                <Link href="https://github.com/ai-chen2050/gluex" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                    GitHub
                                 </Link>
-                                <Link href="https://solanamobile.com/" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                {/* <Link href="https://solanamobile.com/" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     Solana Mobile
                                 </Link>
                                 <Link href="https://solanapay.com/" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
@@ -77,43 +77,43 @@ export const Footer: FC = () => {
                                 </Link>
                                 <Link href="https://solana.org/grants" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     Grants
-                                </Link>
+                                </Link> */}
                             </div>
                         </div>
 
                         <div className="mb-6 items-center mx-auto max-w-screen-lg">
-                            <h5 className="font-normal capitalize tracking-tight  mb-2.5">DEVELOPERS</h5>
+                            <h5 className="font-normal capitalize tracking-tight  mb-2.5">LINKS</h5>
 
                             <div className="flex flex-col mb-0 gap-2">
-                                <Link href="https://docs.solana.com/developers" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
-                                    Documentation
+                                <Link href="https://ai-chen2050.github.io" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                    BKC Blog
                                 </Link>
-                                <Link href="https://github.com/solana-mobile/solana-mobile-stack-sdk" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
-                                    Mobile SDK
+                                <Link href="https://blog.csdn.net/smilejiasmile" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                    ZH Articles 
                                 </Link>
-                                <Link href="https://github.com/solana-labs/solana-pay" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
-                                    Pay SDK
+                                {/* <Link href="https://www.linkedin.com/in/blake-chen-2825a9118" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                    BLAKE CHAN
                                 </Link>
                                 <Link href="https://solanacookbook.com/" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     Cookbook
                                 </Link>
                                 <Link href="https://solana.com/developers/dao" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     DAOs
-                                </Link>
+                                </Link> */}
                             </div>
                         </div>
 
                         <div className="mb-6 items-center mx-auto max-w-screen-lg">
-                            <h5 className="font-normal tracking-tight  mb-2.5">ECOSYSTEM</h5>
+                            <h5 className="font-normal tracking-tight  mb-2.5">ABOUT</h5>
 
                             <div className="flex flex-col mb-0 gap-2">
-                                <Link href="https://solana.com/news" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                <Link href="https://ai-chen2050.github.io/gluex/news" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     News
                                 </Link>
-                                <Link href="https://solana.org/validators" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
-                                    Validators
+                                <Link href="https://ai-chen2050.github.io/gluex" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                    GlueX
                                 </Link>
-                                <Link href="https://www.youtube.com/@SolanaFndn" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
+                                {/* <Link href="https://www.youtube.com/@SolanaFndn" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     Youtube
                                 </Link>
                                 <Link href="https://app.realms.today/discover" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
@@ -121,7 +121,7 @@ export const Footer: FC = () => {
                                 </Link>
                                 <Link href="https://www.solanau.org" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     Solana U
-                                </Link>
+                                </Link> */}
                             </div>
                         </div>
                     </div>
