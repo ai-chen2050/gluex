@@ -6,7 +6,7 @@ const Basics: NextPage = (props) => {
   return (
     <div>
       <Head>
-        <title>Glueu</title>
+        <title>GlueX</title>
         <meta
           name="description"
           content="Basic Functionality"

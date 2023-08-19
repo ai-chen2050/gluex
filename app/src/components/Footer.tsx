@@ -12,7 +12,7 @@ export const Footer: FC = () => {
                                 <Link href="https://solana.com" target="_blank" rel="noopener noreferrer" passHref className="text-secondary hover:text-white">
                                     <div className='flex flex-row ml-1'>
                                         <Image
-                                            src="/glueu/glueX.png"
+                                            src="/gluex/glueX.png"
                                             alt="solana icon"
                                             width={156}
                                             height={96}

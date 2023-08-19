@@ -6,7 +6,7 @@ const Home: NextPage = (props) => {
   return (
     <div>
       <Head>
-        <title>Glueu</title>
+        <title>GlueX</title>
         <meta
           name="description"
           content="Glue with people that you want to."

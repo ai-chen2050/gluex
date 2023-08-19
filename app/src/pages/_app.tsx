@@ -13,7 +13,7 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
     return (
         <>
           <Head>
-            <title>Glueu Lite</title>
+            <title>GlueX Lite</title>
           </Head>
 
           <ContextProvider>
