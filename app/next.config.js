@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: '/glueu',
+  basePath: '/gluex',
   reactStrictMode: true,
   images: {
     unoptimized: true,
