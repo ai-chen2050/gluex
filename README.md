@@ -1,4 +1,4 @@
-# Glueu
+# GlueX
 
 ## Kickoff
 
@@ -9,7 +9,7 @@ This project is created by [create-solana-dapp](https://github.com/solana-develo
 - More detail about the learning docs of Anchor that contract framework go [there](https://www.anchor-lang.com/).  
 
 ```sh
-npx create-solana-dapp glueu
+npx create-solana-dapp glueX
 ```
 
 ## Orchestrate
