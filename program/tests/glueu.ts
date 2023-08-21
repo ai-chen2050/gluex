@@ -1,12 +1,12 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { Glueu } from "../target/types/glueu";
+import { Gluex } from "../target/types/gluex";
 
-describe("glueu", () => {
+describe("gluex", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
-  const program = anchor.workspace.Glueu as Program<Glueu>;
+  const program = anchor.workspace.Gluex as Program<Gluex>;
 
   it("Is initialized!", async () => {
     // Add your test here.

@@ -1,7 +1,7 @@
 [features]
 seeds = false
 [programs.localnet]
-glueu = "DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8"
+gluex = "DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8"
 
 [registry]
 url = "https://anchor.projectserum.com"
