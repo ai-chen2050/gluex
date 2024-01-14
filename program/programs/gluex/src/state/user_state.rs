@@ -3,13 +3,13 @@ use anchor_lang::prelude::*;
 
 #[derive(Debug, Clone, BorshSerialize, BorshDeserialize)]
 pub enum Roomspace {
-    LoveGame,
+    LoveGame = 1,
     GroupGame,
 } 
 
 #[derive(Debug, Clone, BorshSerialize, BorshDeserialize)]
 pub enum Relations {
-    Parents,
+    Parents = 1,
     Lover,
     Bosstaff,
     Partner,    // include friends
@@ -18,7 +18,7 @@ pub enum Relations {
 
 #[derive(Debug, Clone, BorshSerialize, BorshDeserialize)]
 pub enum EventType {
-    HabitTraning,
+    HabitTraning = 1,
     TargetAchieve,
     SurpriseTime
 }
@@ -29,10 +29,10 @@ pub struct Action {
 
 #[account]
 pub struct SubGoal {
-    description: String, // subgoal description
-    deadline: u64, // completed deadline
-    completed: bool, // whether is completed
-    incentive_amount: u64, // incentive amount
+    pub description: String, // subgoal description
+    pub deadline: u64, // completed deadline
+    pub completed: bool, // whether is completed
+    pub incentive_amount: u64, // incentive amount
 }
 
 impl SubGoal {
@@ -78,16 +78,6 @@ impl TotalGoal {
         locked_amount: u64,
         unlock_time: u64,
     ) -> Self {
-        /*
-            1、parameter check
-            description: fixed maxiumum char
-            room/relations/eventype: in types
-            sub_goals: fixed number
-            total_incentive_amount > account amount
-            total_incentive_amount > locked_amount
-            unlock_time > completion_time
-        */ 
-
         TotalGoal{ 
             owner, 
             description,
