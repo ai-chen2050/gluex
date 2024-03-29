@@ -1,13 +1,14 @@
-use anchor_lang::prelude::{*};
 use crate::state::*;
+use anchor_lang::prelude::*;
 
-pub fn initialise(
-    ctx: Context<Initialise>,
+pub fn setup_goal(
+    ctx: Context<SetupGoal>,
+    taker: Pubkey,
     description: String,
     room: Roomspace,
     relations: Relations,
     eventype: EventType,
-    sub_goals: Vec<SubGoal>, 
+    sub_goals: [SubGoal; 3], 
     total_incentive_amount: u64,
     completion_time: u64, 
     locked_amount: u64,
@@ -19,41 +20,48 @@ pub fn initialise(
         &room,
         &relations,
         &eventype,
-        &sub_goals, 
-        total_incentive_amount,
-        completion_time, 
-        locked_amount,
-        unlock_time,
-    );
-
-    if let Err(err) = pass {
-        msg!("An error occurred: {:?}", err);
-        return Err(err);
-    }
-
-    let one_goal = TotalGoal::new(
-        ctx.accounts.payer.key(),
-        description,
-        room,
-        relations,
-        eventype,
         sub_goals, 
         total_incentive_amount,
         completion_time, 
         locked_amount,
         unlock_time,
-    );  
-
+    );
+    
+    if let Err(err) = pass {
+        msg!("An error occurred: {:?}", err);
+        return Err(err);
+    } 
+    
+    let new_goals = &mut ctx.accounts.goals;
+    new_goals.issuer = ctx.accounts.payer.key();
+    new_goals.taker = taker;
+    new_goals.description = description;
+    new_goals.room = room;
+    new_goals.relations = relations;
+    new_goals.eventype = eventype;
+    new_goals.sub_goals = sub_goals;
+    new_goals.total_incentive_amount = total_incentive_amount;
+    new_goals.completion_time = completion_time;
+    new_goals.locked_amount = locked_amount;
+    new_goals.unlock_time = unlock_time;
+    new_goals.bump = *ctx.bumps.get("gluex-goals").unwrap();  
+    
     Ok(())
 }
 
 #[derive(Accounts)]
-pub struct Initialise<'info> {
-    #[account(mut)]
-    address_info: Account<'info, TotalGoal>,
+#[instruction(taker: String, description: String)]
+pub struct SetupGoal<'info> {
+    #[account(
+        init, payer = payer, space = 8 + (32 * 2) + description.len() + (1 * 3) + (3 * (20+ 8 * 2 + 4)) + (8 * 4) + 1, 
+        seeds = [b"gluex-goals", payer.key().as_ref(), taker.as_bytes()], bump
+    )]
+    pub goals: Account<'info, TotalGoal>,
 
     #[account(mut)]
     payer: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
 }
 
 /*
@@ -67,12 +75,12 @@ pub struct Initialise<'info> {
     unlock_time > completion_time
 */ 
 fn param_check(
-    ctx: &Context<Initialise>,
+    ctx: &Context<SetupGoal>,
     description: &String,
     room: &Roomspace,
     relations: &Relations,
     eventype: &EventType,
-    sub_goals: &Vec<SubGoal>, 
+    sub_goals: [SubGoal; 3], 
     total_incentive_amount: u64,
     completion_time: u64, 
     locked_amount: u64,
@@ -80,7 +88,7 @@ fn param_check(
 ) -> Result<()> {
     // description length check
     require!(description.len() < MAXIUMUN_DESCRIPTIONS_LENS, GluXError::DescExceedMaxChars);
-    
+
     // Check if room, relations, and eventype are valid types
     // (Implement the appropriate checks for each type)
     match room {

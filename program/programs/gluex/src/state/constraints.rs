@@ -1,5 +1,5 @@
 
-pub const MAXIUMUN_SUBGOALS: usize = 5;
+pub const MAXIUMUN_SUBGOALS: usize = 3;
 pub const MAXIUMUN_DESCRIPTIONS_LENS: usize = 255;
 pub const MAXIUMUN_SUBGOAL_AMOUNT: u64 = 2000;
 
