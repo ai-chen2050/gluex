@@ -31,4 +31,10 @@ pub enum GluXError {
     #[msg("UnLocked time must bigger than completion time")]
     UnLockedTimeInvalid,
 
+    #[msg("Parse public key error")]
+    ParsePubkeyError,
+
+    #[msg("Invalid subgoal format")]
+    InvalidSubgoalFormat,
+
 }
