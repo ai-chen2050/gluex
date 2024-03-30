@@ -1,8 +1,8 @@
 use crate::state::*;
 use anchor_lang::prelude::*;
 
-
 impl TotalGoal {
+
     fn make_subgoals_from_str(subgoals: &str) -> Result<Vec<SubGoal>> {
         let subgoals: Vec<SubGoal> = subgoals
             .split(',')

@@ -5,7 +5,7 @@ use instructions::*;
 pub mod instructions;
 pub mod state;
 
-declare_id!("DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8");
+declare_id!("Bez8zTCqWNFiWorJXE7jvz1XbSqbLLvSb6fRR2p85ZVB");
 
 #[program]
 pub mod gluex {
