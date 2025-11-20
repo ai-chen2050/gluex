@@ -2,6 +2,7 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { FC } from 'react';
 import { ContextProvider } from '../contexts/ContextProvider';
+import { LanguageProvider } from '../contexts/LanguageProvider';
 import { AppBar } from '../components/AppBar';
 import { ContentContainer } from '../components/ContentContainer';
 import { Footer } from '../components/Footer';
@@ -16,16 +17,18 @@ const App: FC<AppProps> = ({ Component, pageProps }) => {
             <title>GlueX Lite</title>
           </Head>
 
-          <ContextProvider>
-            <div className="flex flex-col h-screen">
-              <Notifications />
-              <AppBar/>
-              <ContentContainer>
-                <Component {...pageProps} />
-                <Footer/>
-              </ContentContainer>
-            </div>
-          </ContextProvider>
+          <LanguageProvider>
+            <ContextProvider>
+              <div className="flex flex-col h-screen">
+                <Notifications />
+                <AppBar/>
+                <ContentContainer>
+                  <Component {...pageProps} />
+                  <Footer/>
+                </ContentContainer>
+              </div>
+            </ContextProvider>
+          </LanguageProvider>
         </>
     );
 };

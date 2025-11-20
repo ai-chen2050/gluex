@@ -1,0 +1,579 @@
+{
+  "version": "0.1.0",
+  "name": "gluex",
+  "instructions": [
+    {
+      "name": "setupGoal",
+      "accounts": [
+        {
+          "name": "goals",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "taker",
+          "type": "publicKey"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "room",
+          "type": {
+            "defined": "Roomspace"
+          }
+        },
+        {
+          "name": "relations",
+          "type": {
+            "defined": "Relations"
+          }
+        },
+        {
+          "name": "eventype",
+          "type": {
+            "defined": "EventType"
+          }
+        },
+        {
+          "name": "subGoals",
+          "type": {
+            "vec": {
+              "defined": "SubGoalInput"
+            }
+          }
+        },
+        {
+          "name": "totalIncentiveAmount",
+          "type": "u64"
+        },
+        {
+          "name": "completionTime",
+          "type": "i64"
+        },
+        {
+          "name": "lockedAmount",
+          "type": "u64"
+        },
+        {
+          "name": "unlockTime",
+          "type": "i64"
+        },
+        {
+          "name": "config",
+          "type": {
+            "defined": "GoalConfigInput"
+          }
+        }
+      ]
+    },
+    {
+      "name": "submitProof",
+      "accounts": [
+        {
+          "name": "goals",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "taker",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "subgoalIndex",
+          "type": "u8"
+        },
+        {
+          "name": "proofUri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "reviewSubgoal",
+      "accounts": [
+        {
+          "name": "goals",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "issuer",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "takerAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "subgoalIndex",
+          "type": "u8"
+        },
+        {
+          "name": "approve",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "triggerSurprise",
+      "accounts": [
+        {
+          "name": "goals",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "takerAccount",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claimUnused",
+      "accounts": [
+        {
+          "name": "goals",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "issuer",
+          "isMut": true,
+          "isSigner": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "totalGoal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "issuer",
+            "type": "publicKey"
+          },
+          {
+            "name": "taker",
+            "type": "publicKey"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "room",
+            "type": {
+              "defined": "Roomspace"
+            }
+          },
+          {
+            "name": "relations",
+            "type": {
+              "defined": "Relations"
+            }
+          },
+          {
+            "name": "eventype",
+            "type": {
+              "defined": "EventType"
+            }
+          },
+          {
+            "name": "subGoals",
+            "type": {
+              "array": [
+                {
+                  "defined": "SubGoal"
+                },
+                5
+              ]
+            }
+          },
+          {
+            "name": "activeSubGoals",
+            "type": "u8"
+          },
+          {
+            "name": "totalIncentiveAmount",
+            "type": "u64"
+          },
+          {
+            "name": "depositedAmount",
+            "type": "u64"
+          },
+          {
+            "name": "releasedAmount",
+            "type": "u64"
+          },
+          {
+            "name": "completionTime",
+            "type": "i64"
+          },
+          {
+            "name": "lockedAmount",
+            "type": "u64"
+          },
+          {
+            "name": "unlockTime",
+            "type": "i64"
+          },
+          {
+            "name": "startTime",
+            "type": "i64"
+          },
+          {
+            "name": "surpriseTriggerTs",
+            "type": "i64"
+          },
+          {
+            "name": "checkpointInterval",
+            "type": "i64"
+          },
+          {
+            "name": "completedCount",
+            "type": "u8"
+          },
+          {
+            "name": "failed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Roomspace",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "LoveGame"
+          },
+          {
+            "name": "GroupGame"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Relations",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Parents"
+          },
+          {
+            "name": "Lover"
+          },
+          {
+            "name": "Bosstaff"
+          },
+          {
+            "name": "Partner"
+          },
+          {
+            "name": "Dao"
+          }
+        ]
+      }
+    },
+    {
+      "name": "EventType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "HabitTraning"
+          },
+          {
+            "name": "TargetAchieve"
+          },
+          {
+            "name": "SurpriseTime"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubGoalStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "ProofSubmitted"
+          },
+          {
+            "name": "Approved"
+          },
+          {
+            "name": "Rejected"
+          },
+          {
+            "name": "Paid"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubGoal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": {
+              "array": [
+                "u8",
+                48
+              ]
+            }
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "incentiveAmount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "SubGoalStatus"
+            }
+          },
+          {
+            "name": "proofUri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "submittedAt",
+            "type": "i64"
+          },
+          {
+            "name": "verifier",
+            "type": "publicKey"
+          },
+          {
+            "name": "autoReleaseAt",
+            "type": "i64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubGoalInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "incentiveAmount",
+            "type": "u64"
+          },
+          {
+            "name": "autoReleaseAt",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GoalConfigInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "startTime",
+            "type": "i64"
+          },
+          {
+            "name": "surpriseTime",
+            "type": "i64"
+          },
+          {
+            "name": "checkpointInterval",
+            "type": "i64"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "None",
+      "msg": ""
+    },
+    {
+      "code": 6001,
+      "name": "DescExceedMaxChars",
+      "msg": "Description exceeds the maximum character limit"
+    },
+    {
+      "code": 6002,
+      "name": "RelationsNotSupport",
+      "msg": "Relations type is not supported"
+    },
+    {
+      "code": 6003,
+      "name": "RoomNotSupport",
+      "msg": "Room type is not supported"
+    },
+    {
+      "code": 6004,
+      "name": "EventTypeNotSupport",
+      "msg": "EventType type is not supported"
+    },
+    {
+      "code": 6005,
+      "name": "SubGoalNumExceed",
+      "msg": "SubGoal number too many,maximum is five target"
+    },
+    {
+      "code": 6006,
+      "name": "PayerAccountInsufficient",
+      "msg": "Payer account amount insufficient,account amount must bigger than total_incentive_amount"
+    },
+    {
+      "code": 6007,
+      "name": "LockedAmountInvalid",
+      "msg": "Locked amount must smaller than total_incentive_amount"
+    },
+    {
+      "code": 6008,
+      "name": "SumOfSubgoalAmountInvalid",
+      "msg": "The sum of subgoal amount must smaller than total_incentive_amount"
+    },
+    {
+      "code": 6009,
+      "name": "UnLockedTimeInvalid",
+      "msg": "UnLocked time must bigger than completion time"
+    },
+    {
+      "code": 6010,
+      "name": "SubGoalIndexOutOfBounds",
+      "msg": "Subgoal index out of bounds"
+    },
+    {
+      "code": 6011,
+      "name": "SubGoalAlreadyFinalized",
+      "msg": "Subgoal already finalized"
+    },
+    {
+      "code": 6012,
+      "name": "ProofAlreadySubmitted",
+      "msg": "Proof already submitted for this subgoal"
+    },
+    {
+      "code": 6013,
+      "name": "ProofMissing",
+      "msg": "Proof submission required before verification"
+    },
+    {
+      "code": 6014,
+      "name": "UnauthorizedSigner",
+      "msg": "Only issuer can execute this action"
+    },
+    {
+      "code": 6015,
+      "name": "UnauthorizedTaker",
+      "msg": "Only taker can execute this action"
+    },
+    {
+      "code": 6016,
+      "name": "SurpriseTimeNotReached",
+      "msg": "Surprise trigger time not reached"
+    },
+    {
+      "code": 6017,
+      "name": "UnlockTimeNotReached",
+      "msg": "Unlock time not reached"
+    },
+    {
+      "code": 6018,
+      "name": "NoFundsAvailable",
+      "msg": "No funds available to claim"
+    },
+    {
+      "code": 6019,
+      "name": "MissingSubGoals",
+      "msg": "Missing subgoals for this event type"
+    },
+    {
+      "code": 6020,
+      "name": "HabitConfigInvalid",
+      "msg": "Habit configuration is invalid"
+    },
+    {
+      "code": 6021,
+      "name": "InvalidCheckpointInterval",
+      "msg": "Checkpoint interval must be positive"
+    },
+    {
+      "code": 6022,
+      "name": "ParsePubkeyError",
+      "msg": "Parse public key error"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidSubgoalFormat",
+      "msg": "Invalid subgoal format"
+    }
+  ],
+  "metadata": {
+    "address": "DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8"
+  }
+}
+

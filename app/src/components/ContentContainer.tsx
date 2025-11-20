@@ -1,12 +1,17 @@
 import { FC } from 'react';
-import Link from "next/link";
 import Text from './Text';
 import NavElement from './nav-element';
+import { useLanguage } from '../contexts/LanguageProvider';
 interface Props {
   children: React.ReactNode;
 }
 
 export const ContentContainer: React.FC<Props> = ({ children }) => {
+  const { language } = useLanguage();
+  const navCopy =
+    language === 'zh'
+      ? { home: '首页', goals: '目标', tools: '工具' }
+      : { home: 'Home', goals: 'Goals', tools: 'Tools' };
 
   return (
     <div className="flex-1 drawer h-52">
@@ -24,14 +29,20 @@ export const ContentContainer: React.FC<Props> = ({ children }) => {
           </li>
           <li>
           <NavElement
-            label="Home"
+            label={navCopy.home}
             href="/"
           />
           </li>
           <li>
           <NavElement
-            label="Basics"
-            href="/basics"
+            label={navCopy.goals}
+            href="/goals"
+          />
+          </li>
+          <li>
+          <NavElement
+            label={navCopy.tools}
+            href="/tools"
           />
           </li>
         </ul>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import dynamic from 'next/dynamic';
 import React, { useState } from "react";
 import { useAutoConnect } from '../contexts/AutoConnectProvider';
+import { useLanguage } from '../contexts/LanguageProvider';
 import NetworkSwitcher from './NetworkSwitcher';
 import NavElement from './nav-element';
 
@@ -13,6 +14,11 @@ const WalletMultiButtonDynamic = dynamic(
 
 export const AppBar: React.FC = () => {
   const { autoConnect, setAutoConnect } = useAutoConnect();
+  const { language, setLanguage } = useLanguage();
+  const navCopy =
+    language === 'zh'
+      ? { home: '首页', goals: '目标', tools: '工具' }
+      : { home: 'Home', goals: 'Goals', tools: 'Tools' };
   const [isNavOpen, setIsNavOpen] = useState(false);
   return (
     <div>
@@ -38,13 +44,18 @@ export const AppBar: React.FC = () => {
         <div className="navbar-end">
           <div className="hidden md:inline-flex align-items-center justify-items gap-6">
           <NavElement
-            label="Home"
+            label={navCopy.home}
             href="/"
             navigationStarts={() => setIsNavOpen(false)}
           />
           <NavElement
-            label="Basics"
-            href="/basics"
+            label={navCopy.goals}
+            href="/goals"
+            navigationStarts={() => setIsNavOpen(false)}
+          />
+          <NavElement
+            label={navCopy.tools}
+            href="/tools"
             navigationStarts={() => setIsNavOpen(false)}
           />
           <WalletMultiButtonDynamic className="btn-ghost btn-sm rounded-btn text-lg mr-6 " />
@@ -75,14 +86,27 @@ export const AppBar: React.FC = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <ul tabIndex={0} className="p-2 shadow menu dropdown-content bg-base-100 rounded-box sm:w-52">
+          <ul tabIndex={0} className="p-4 shadow menu dropdown-content bg-base-100 rounded-box sm:w-60 space-y-4">
             <li>
-              <div className="form-control bg-opacity-100">
+              <div className="form-control bg-opacity-100 gap-2">
                 <label className="cursor-pointer label">
-                  <a>Autoconnect</a>
+                  <span>Autoconnect</span>
                   <input type="checkbox" checked={autoConnect} onChange={(e) => setAutoConnect(e.target.checked)} className="toggle" />
                 </label>
                 <NetworkSwitcher />
+              </div>
+            </li>
+            <li className="border-t border-base-200 pt-3">
+              <div className="form-control gap-2">
+                <span className="text-xs font-semibold uppercase text-slate-400">Language</span>
+                <select
+                  className="select select-bordered select-sm"
+                  value={language}
+                  onChange={(event) => setLanguage(event.target.value as 'en' | 'zh')}
+                >
+                  <option value="en">English</option>
+                  <option value="zh">中文</option>
+                </select>
               </div>
             </li>
           </ul>

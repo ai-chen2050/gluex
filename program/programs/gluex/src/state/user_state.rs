@@ -1,12 +1,15 @@
 use anchor_lang::prelude::*;
+use super::constraints::{
+    MAX_DESCRIPTION_BYTES, MAX_PROOF_URI_LENGTH, MAX_SUBGOAL_TITLE_LENGTH, MAXIUMUN_SUBGOALS,
+};
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub enum Roomspace {
     LoveGame = 1,
     GroupGame,
 } 
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub enum Relations {
     Parents = 1,
     Lover,
@@ -15,88 +18,115 @@ pub enum Relations {
     Dao,        // stranger
 }
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub enum EventType {
     HabitTraning = 1,
     TargetAchieve,
     SurpriseTime
 }
 
-pub struct Action {
-
+#[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
+pub enum SubGoalStatus {
+    Pending = 1,
+    ProofSubmitted,
+    Approved,
+    Rejected,
+    Paid,
 }
 
-// #[account]
+impl Default for SubGoalStatus {
+    fn default() -> Self {
+        SubGoalStatus::Pending
+    }
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct SubGoalInput {
+    pub title: String,
+    pub deadline: i64,
+    pub incentive_amount: u64,
+    pub auto_release_at: i64,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct GoalConfigInput {
+    pub start_time: i64,
+    pub surprise_time: i64,
+    pub checkpoint_interval: i64,
+}
+
 #[derive(Debug, Default, Clone, Copy, AnchorSerialize, AnchorDeserialize)]
 pub struct SubGoal {
-    pub description: [u8; 20], // subgoal description
-    pub deadline: u64, // completed deadline
+    pub title: [u8; MAX_SUBGOAL_TITLE_LENGTH], // subgoal description
+    pub deadline: i64, // completed deadline
     pub incentive_amount: u64, // incentive amount
-    pub completed: bool, // whether is completed
+    pub status: SubGoalStatus, // lifecycle status
+    pub proof_uri: [u8; MAX_PROOF_URI_LENGTH],
+    pub submitted_at: i64,
+    pub verifier: Pubkey,
+    pub auto_release_at: i64,
+    pub is_active: bool,
 }
 
 impl SubGoal {
-    pub fn new(
-        description: [u8; 20],  
-        deadline: u64, 
-        completed: bool, 
-        incentive_amount: u64,
-    ) -> Self {
-        SubGoal{ 
-            description,
-            deadline,
-            completed,
-            incentive_amount,
-         }
+    pub fn from_title(title: [u8; MAX_SUBGOAL_TITLE_LENGTH]) -> Self {
+        SubGoal {
+            title,
+            ..Default::default()
+        }
     }
 }
 
 #[account]
+#[derive(Default)]
 pub struct TotalGoal {
     pub issuer: Pubkey, // 8 + (32 * 2) + des.len() + 3 + (40 * 3) + (8 * 4) + 1 
     pub taker: Pubkey,
-    pub description: String, // total goal description
+    pub description: String, // capped via MAX_DESCRIPTION_BYTES
     pub room: Roomspace,
     pub relations: Relations,
     pub eventype: EventType,
-    pub sub_goals: [SubGoal; 3], // subgoal list
-    pub total_incentive_amount: u64, // total incentive amout
-    pub completion_time: u64, // total goal completed
-    pub locked_amount: u64, // lock amout
-    pub unlock_time: u64, // unlock time
+    pub sub_goals: [SubGoal; MAXIUMUN_SUBGOALS], // subgoal list
+    pub active_sub_goals: u8,
+    pub total_incentive_amount: u64, // total incentive amount
+    pub deposited_amount: u64,
+    pub released_amount: u64,
+    pub completion_time: i64, // total goal completed
+    pub locked_amount: u64, // lock amount
+    pub unlock_time: i64, // unlock time
+    pub start_time: i64,
+    pub surprise_trigger_ts: i64,
+    pub checkpoint_interval: i64,
+    pub completed_count: u8,
+    pub failed: bool,
     pub bump: u8,
 }
 
 impl TotalGoal {
-    pub fn new(
-        issuer: Pubkey,
-        taker: Pubkey,
-        description: String,
-        room: Roomspace,
-        relations: Relations,
-        eventype: EventType,
-        sub_goals: [SubGoal; 3], 
-        total_incentive_amount: u64,
-        completion_time: u64, 
-        locked_amount: u64,
-        unlock_time: u64,
-        bump: u8,
-    ) -> Self {
-        TotalGoal{ 
-            issuer,
-            taker, 
-            description,
-            room,
-            relations,
-            eventype,
-            sub_goals, 
-            total_incentive_amount,
-            completion_time, 
-            locked_amount,
-            unlock_time,
-            bump,
-         }
+    pub fn description_capacity() -> usize {
+        MAX_DESCRIPTION_BYTES
     }
+
+    pub fn goal_seeds(&self) -> [&[u8]; 3] {
+        [
+            b"gluex-goals",
+            self.issuer.as_ref(),
+            self.taker.as_ref(),
+        ]
+    }
+}
+
+pub fn string_to_fixed<const N: usize>(value: &str) -> [u8; N] {
+    let mut buffer = [0u8; N];
+    let bytes = value.as_bytes();
+    let len = bytes.len().min(N);
+    buffer[..len].copy_from_slice(&bytes[..len]);
+    buffer
+}
+
+pub fn trim_fixed_string(bytes: &[u8]) -> String {
+    let len = bytes.iter().position(|b| *b == 0).unwrap_or(bytes.len());
+    String::from_utf8_lossy(&bytes[..len]).to_string()
 }
 
 // Todo: needs another program to log user infos
