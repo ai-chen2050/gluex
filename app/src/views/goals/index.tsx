@@ -224,6 +224,8 @@ const GoalsView: FC = () => {
   const [proofInputs, setProofInputs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [goals, setGoals] = useState<any[]>([]);
+  const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const isHabit = useMemo(() => !!eventType.habitTraning, [eventType]);
   const isTarget = useMemo(() => !!eventType.targetAchieve, [eventType]);
@@ -265,6 +267,25 @@ const GoalsView: FC = () => {
   const handleAddStage = () => {
     if (stages.length >= 5) return;
     setStages((prev) => [...prev, { ...defaultStage }]);
+    // Scroll to the new stage after a brief delay for animation
+    setTimeout(() => {
+      const stageElements = document.querySelectorAll('[data-stage-card]');
+      if (stageElements.length > 0) {
+        stageElements[stageElements.length - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 100);
+  };
+
+  const toggleGoalExpanded = (goalKey: string) => {
+    setExpandedGoals((prev) => {
+      const next = new Set(prev);
+      if (next.has(goalKey)) {
+        next.delete(goalKey);
+      } else {
+        next.add(goalKey);
+      }
+      return next;
+    });
   };
 
   const handleStageChange = (index: number, key: keyof StageInput, value: string) => {
@@ -449,13 +470,17 @@ const GoalsView: FC = () => {
     const proofKey = `${goal.publicKey.toBase58()}-${index}`;
 
     return (
-      <div key={index} className="border border-base-300 rounded-lg p-4 flex flex-col gap-2">
+      <div
+        key={index}
+        className="border border-base-300 rounded-lg p-4 flex flex-col gap-2 transition-all duration-300 hover:border-indigo-500/50 hover:shadow-md bg-gradient-to-br from-base-200/30 to-base-200/10 transform hover:scale-[1.01]"
+        style={{ animation: `fadeInLeft 0.3s ease-out ${index * 50}ms both` }}
+      >
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-slate-500">{`${t.stageLabel} #${index + 1}`}</p>
-            <p className="font-semibold">{decodeFixedString(subGoal.title)}</p>
+            <p className="font-semibold text-base">{decodeFixedString(subGoal.title)}</p>
           </div>
-          <span className={`badge ${statusColorMap[statusKey] ?? 'badge-ghost'}`}>
+          <span className={`badge ${statusColorMap[statusKey] ?? 'badge-ghost'} animate-pulse`}>
             {t.statusLabels[statusKey as keyof typeof t.statusLabels] ?? statusKey}
           </span>
         </div>
@@ -466,36 +491,45 @@ const GoalsView: FC = () => {
           {t.incentive}: {lamportsToSol(subGoal.incentiveAmount)} SOL
         </p>
         {isTaker(goal) && ['pending', 'rejected'].includes(statusKey) && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 mt-2">
             <input
               type="text"
               placeholder={t.proofPlaceholder}
-              className="input input-sm input-bordered w-full"
+              className="input input-sm input-bordered w-full transition-all duration-200 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
               value={proofInputs[proofKey] ?? ''}
               onChange={(event) =>
                 setProofInputs((prev) => ({ ...prev, [proofKey]: event.target.value }))
               }
             />
             <button
-              className="btn btn-primary btn-sm"
+              className="btn btn-primary btn-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/50 active:scale-95"
               onClick={() => submitProof(goal, index)}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               {t.submitProof}
             </button>
           </div>
         )}
         {isIssuer(goal) && statusKey === 'proofsubmitted' && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-2">
             <button
-              className="btn btn-success btn-sm flex-1"
+              className="btn btn-success btn-sm flex-1 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-success/50 active:scale-95"
               onClick={() => reviewSubgoal(goal, index, true)}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
               {t.approve}
             </button>
             <button
-              className="btn btn-outline btn-sm flex-1"
+              className="btn btn-outline btn-sm flex-1 transition-all duration-300 hover:scale-105 hover:border-red-500 hover:text-red-400 hover:bg-red-500/10 active:scale-95"
               onClick={() => reviewSubgoal(goal, index, false)}
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
               {t.reject}
             </button>
           </div>
@@ -507,33 +541,64 @@ const GoalsView: FC = () => {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 flex flex-col gap-10">
       <section className="space-y-6">
-        <h1 className="text-4xl font-semibold text-center">{t.formTitle}</h1>
+        <h1 className="text-4xl font-semibold text-center bg-gradient-to-r from-indigo-500 to-fuchsia-500 bg-clip-text text-transparent animate-pulse">
+          {t.formTitle}
+        </h1>
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <label className="form-control w-full">
-              <span className="label-text text-sm">{t.takerLabel}</span>
-              <input
-                type="text"
-                placeholder={t.takerPlaceholder}
-                className="input input-bordered w-full"
-                value={takerAddress}
-                onChange={(event) => setTakerAddress(event.target.value)}
-              />
+            <label className="form-control w-full group">
+              <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
+                {t.takerLabel}
+              </span>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={t.takerPlaceholder}
+                  className={`input input-bordered w-full transition-all duration-300 ${
+                    focusedField === 'taker'
+                      ? 'input-primary border-2 shadow-lg shadow-indigo-500/20'
+                      : 'hover:border-indigo-500/50'
+                  }`}
+                  value={takerAddress}
+                  onChange={(event) => setTakerAddress(event.target.value)}
+                  onFocus={() => setFocusedField('taker')}
+                  onBlur={() => setFocusedField(null)}
+                />
+                {takerAddress && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </div>
             </label>
-            <label className="form-control w-full">
-              <span className="label-text text-sm">{t.descriptionLabel}</span>
+            <label className="form-control w-full group">
+              <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
+                {t.descriptionLabel}
+              </span>
               <textarea
-                className="textarea textarea-bordered"
+                className={`textarea textarea-bordered transition-all duration-300 resize-none ${
+                  focusedField === 'description'
+                    ? 'textarea-primary border-2 shadow-lg shadow-indigo-500/20'
+                    : 'hover:border-indigo-500/50'
+                }`}
                 placeholder={t.descriptionPlaceholder}
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
+                onFocus={() => setFocusedField('description')}
+                onBlur={() => setFocusedField(null)}
+                rows={4}
               />
+              <div className="label">
+                <span className="label-text-alt text-slate-500">{description.length} characters</span>
+              </div>
             </label>
             <div className="grid grid-cols-2 gap-4">
-              <label className="form-control">
-                <span className="label-text text-sm">{t.relationLabel}</span>
+              <label className="form-control group">
+                <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
+                  {t.relationLabel}
+                </span>
                 <select
-                  className="select select-bordered"
+                  className="select select-bordered transition-all duration-300 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
                   value={JSON.stringify(relations)}
                   onChange={(event) =>
                     setRelations(JSON.parse(event.target.value))
@@ -546,10 +611,12 @@ const GoalsView: FC = () => {
                   ))}
                 </select>
               </label>
-              <label className="form-control">
-                <span className="label-text text-sm">{t.roomLabel}</span>
+              <label className="form-control group">
+                <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
+                  {t.roomLabel}
+                </span>
                 <select
-                  className="select select-bordered"
+                  className="select select-bordered transition-all duration-300 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
                   value={JSON.stringify(room)}
                   onChange={(event) => setRoom(JSON.parse(event.target.value))}
                 >
@@ -561,10 +628,12 @@ const GoalsView: FC = () => {
                 </select>
               </label>
             </div>
-            <label className="form-control">
-              <span className="label-text text-sm">{t.eventLabel}</span>
+            <label className="form-control group">
+              <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
+                {t.eventLabel}
+              </span>
               <select
-                className="select select-bordered"
+                className="select select-bordered transition-all duration-300 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
                 value={JSON.stringify(eventType)}
                 onChange={(event) => setEventType(JSON.parse(event.target.value))}
               >
@@ -655,16 +724,29 @@ const GoalsView: FC = () => {
             {isTarget ? (
               <div className="space-y-3">
                 {stages.map((stage, index) => (
-                  <div key={index} className="border border-base-300 rounded-lg p-4 space-y-2">
-                    <div className="flex justify-between">
-                      <p className="text-sm text-slate-400">{`${t.stageLabel} #${index + 1}`}</p>
+                  <div
+                    key={index}
+                    data-stage-card
+                    className="border border-base-300 rounded-lg p-4 space-y-2 transition-all duration-300 hover:border-indigo-500/50 hover:shadow-lg hover:shadow-indigo-500/10 bg-gradient-to-br from-base-200/50 to-base-200/30 transform hover:scale-[1.01]"
+                    style={{ animation: `fadeIn 0.3s ease-out ${index * 50}ms both` }}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs font-bold text-indigo-400">
+                          {index + 1}
+                        </div>
+                        <p className="text-sm text-slate-400 font-medium">{`${t.stageLabel} #${index + 1}`}</p>
+                      </div>
                       {stages.length > 1 && (
                         <button
-                          className="text-xs text-red-400"
-                          onClick={() =>
-                            setStages((prev) => prev.filter((_, idx) => idx !== index))
-                          }
+                          className="btn btn-ghost btn-xs text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all duration-200"
+                          onClick={() => {
+                            setStages((prev) => prev.filter((_, idx) => idx !== index));
+                          }}
                         >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
                           {t.removeStage}
                         </button>
                       )}
@@ -672,42 +754,65 @@ const GoalsView: FC = () => {
                     <input
                       type="text"
                       placeholder={t.stageTitlePlaceholder}
-                      className="input input-bordered w-full"
+                      className="input input-bordered w-full input-sm transition-all duration-200 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
                       value={stage.title}
                       onChange={(event) => handleStageChange(index, 'title', event.target.value)}
                     />
                     <input
                       type="datetime-local"
-                      className="input input-bordered w-full"
+                      className="input input-bordered w-full input-sm transition-all duration-200 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
                       value={stage.deadline}
                       onChange={(event) => handleStageChange(index, 'deadline', event.target.value)}
                     />
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder={t.stageAmountPlaceholder}
-                      className="input input-bordered w-full"
-                      value={stage.amount}
-                      onChange={(event) => handleStageChange(index, 'amount', event.target.value)}
-                    />
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder={t.stageAmountPlaceholder}
+                        className="input input-bordered w-full input-sm transition-all duration-200 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
+                        value={stage.amount}
+                        onChange={(event) => handleStageChange(index, 'amount', event.target.value)}
+                      />
+                      {stage.amount > 0 && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-indigo-400 font-semibold">
+                          SOL
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {stages.length < 5 && (
-                  <button className="btn btn-outline btn-sm w-full" onClick={handleAddStage}>
+                  <button
+                    className="btn btn-outline btn-sm w-full border-dashed border-2 border-indigo-500/30 hover:border-indigo-500 hover:bg-indigo-500/10 text-indigo-400 hover:text-indigo-300 transition-all duration-300 group"
+                    onClick={handleAddStage}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
                     {t.addStage}
                   </button>
                 )}
               </div>
             ) : (
-              <div className="alert alert-info">
-                {isHabit ? t.habitHint : t.surpriseHint}
+              <div className="alert alert-info bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 border-indigo-500/20 transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6 text-indigo-400" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{isHabit ? t.habitHint : t.surpriseHint}</span>
               </div>
             )}
             <button
-              className={`btn btn-primary w-full ${loading ? 'loading' : ''}`}
+              className={`btn btn-primary w-full transition-all duration-300 ${
+                loading ? 'loading' : 'hover:scale-105 hover:shadow-lg hover:shadow-indigo-500/50 active:scale-95'
+              } bg-gradient-to-r from-indigo-500 to-fuchsia-500 border-0`}
               onClick={handleCreateGoal}
               disabled={loading}
             >
+              {!loading && (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              )}
               {t.launch}
             </button>
           </div>
@@ -716,42 +821,94 @@ const GoalsView: FC = () => {
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">{t.listTitle}</h2>
-          <button className="btn btn-sm btn-outline" onClick={refreshGoals}>
+          <h2 className="text-2xl font-semibold bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+            {t.listTitle}
+          </h2>
+          <button
+            className="btn btn-sm btn-outline transition-all duration-300 hover:scale-110 hover:border-indigo-500 hover:text-indigo-400 active:scale-95"
+            onClick={refreshGoals}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
             {t.refresh}
           </button>
         </div>
         {goals.length === 0 && (
-          <div className="alert alert-warning">
-            {t.emptyBanner}
+          <div className="alert alert-warning bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border-yellow-500/20 transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6 text-yellow-400" fill="none" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>{t.emptyBanner}</span>
           </div>
         )}
         <div className="grid md:grid-cols-2 gap-5">
-          {goals.map((goal) => (
-            <div key={goal.publicKey.toBase58()} className="card bg-base-200 shadow-lg">
+          {goals.map((goal, goalIndex) => {
+            const goalKey = goal.publicKey.toBase58();
+            const isExpanded = expandedGoals.has(goalKey);
+            return (
+            <div
+              key={goalKey}
+              className="card bg-base-200 shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:scale-[1.02] border border-base-300 hover:border-indigo-500/30 transform"
+              style={{ animation: `fadeInUp 0.4s ease-out ${goalIndex * 100}ms both` }}
+            >
               <div className="card-body space-y-4">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="card-title">{goal.account.description}</h3>
-                    <p className="text-sm text-slate-400">
-                      {readEnumKey(goal.account.eventype)} ·{' '}
-                      {lamportsToSol(goal.account.totalIncentiveAmount)} SOL
-                    </p>
+                  <div className="flex-1">
+                    <h3 className="card-title text-lg bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
+                      {goal.account.description}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="badge badge-outline badge-sm">
+                        {readEnumKey(goal.account.eventype)}
+                      </span>
+                      <span className="text-sm font-semibold text-indigo-400">
+                        {lamportsToSol(goal.account.totalIncentiveAmount)} SOL
+                      </span>
+                    </div>
                   </div>
                   {isIssuer(goal) && (
-                    <div className="text-right text-xs text-slate-400">
+                    <div className="text-right text-xs text-slate-400 bg-base-300/50 px-2 py-1 rounded">
                       {t.info.issuer}
                       <br />
-                      {goal.account.issuer.toBase58().slice(0, 8)}…
+                      <span className="font-mono">{goal.account.issuer.toBase58().slice(0, 8)}…</span>
                     </div>
                   )}
                 </div>
-                <div className="text-xs text-slate-500 space-y-1">
-                  <p>{t.info.room}: {readEnumKey(goal.account.room)}</p>
-                  <p>{t.info.relation}: {readEnumKey(goal.account.relations)}</p>
-                  <p>{t.info.completion}: {unixToLocale(goal.account.completionTime)}</p>
-                  <p>{t.info.unlock}: {unixToLocale(goal.account.unlockTime)}</p>
-                </div>
+                <button
+                  onClick={() => toggleGoalExpanded(goalKey)}
+                  className="w-full text-left"
+                >
+                  <div className={`text-xs text-slate-500 space-y-1 transition-all duration-300 ${isExpanded ? 'max-h-96' : 'max-h-0 overflow-hidden'}`}>
+                    <p className="flex items-center gap-2">
+                      <span className="w-16 text-slate-400">{t.info.room}:</span>
+                      <span className="badge badge-sm">{readEnumKey(goal.account.room)}</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-16 text-slate-400">{t.info.relation}:</span>
+                      <span className="badge badge-sm">{readEnumKey(goal.account.relations)}</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-16 text-slate-400">{t.info.completion}:</span>
+                      <span>{unixToLocale(goal.account.completionTime)}</span>
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <span className="w-16 text-slate-400">{t.info.unlock}:</span>
+                      <span>{unixToLocale(goal.account.unlockTime)}</span>
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-center mt-2 text-xs text-indigo-400">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className={`h-4 w-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </button>
                 <div className="grid gap-3">
                   {goal.account.subGoals.map((subGoal: any, index: number) =>
                     renderSubGoal(goal, subGoal, index),
@@ -759,19 +916,32 @@ const GoalsView: FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {isSurprise && isTaker(goal) && (
-                    <button className="btn btn-accent btn-sm" onClick={() => triggerSurprise(goal)}>
+                    <button
+                      className="btn btn-accent btn-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-accent/50 active:scale-95"
+                      onClick={() => triggerSurprise(goal)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       {t.triggerSurprise}
                     </button>
                   )}
                   {isIssuer(goal) && (
-                    <button className="btn btn-outline btn-sm" onClick={() => claimUnused(goal)}>
+                    <button
+                      className="btn btn-outline btn-sm transition-all duration-300 hover:scale-105 hover:border-indigo-500 hover:text-indigo-400 active:scale-95"
+                      onClick={() => claimUnused(goal)}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                       {t.claimUnused}
                     </button>
                   )}
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
