@@ -539,28 +539,29 @@ const GoalsView: FC = () => {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 flex flex-col gap-10">
+    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-8 sm:py-12 space-y-12 sm:space-y-16">
       <section className="space-y-6">
-        <h1 className="text-4xl font-semibold text-center bg-gradient-to-r from-indigo-500 to-fuchsia-500 bg-clip-text text-transparent animate-pulse">
-          {t.formTitle}
-        </h1>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-slate-950/70 to-slate-900/60 backdrop-blur-md p-5 sm:p-8 space-y-6 shadow-[0_15px_50px_rgba(79,70,229,0.18)]">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-center bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-fuchsia-500">
+            {t.formTitle}
+          </h1>
+          <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <label className="form-control w-full group">
               <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
                 {t.takerLabel}
               </span>
               <div className="relative">
-                <input
-                  type="text"
-                  placeholder={t.takerPlaceholder}
+              <input
+                type="text"
+                placeholder={t.takerPlaceholder}
                   className={`input input-bordered w-full transition-all duration-300 ${
                     focusedField === 'taker'
                       ? 'input-primary border-2 shadow-lg shadow-indigo-500/20'
                       : 'hover:border-indigo-500/50'
                   }`}
-                  value={takerAddress}
-                  onChange={(event) => setTakerAddress(event.target.value)}
+                value={takerAddress}
+                onChange={(event) => setTakerAddress(event.target.value)}
                   onFocus={() => setFocusedField('taker')}
                   onBlur={() => setFocusedField(null)}
                 />
@@ -575,19 +576,26 @@ const GoalsView: FC = () => {
               <span className="label-text text-sm mb-1 transition-colors group-focus-within:text-indigo-400">
                 {t.descriptionLabel}
               </span>
-              <textarea
-                className={`textarea textarea-bordered transition-all duration-300 resize-none ${
-                  focusedField === 'description'
-                    ? 'textarea-primary border-2 shadow-lg shadow-indigo-500/20'
-                    : 'hover:border-indigo-500/50'
-                }`}
-                placeholder={t.descriptionPlaceholder}
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                onFocus={() => setFocusedField('description')}
-                onBlur={() => setFocusedField(null)}
-                rows={4}
-              />
+              <div className="relative">
+                <textarea
+                  className={`textarea textarea-bordered w-full transition-all duration-300 resize-none ${
+                    focusedField === 'description'
+                      ? 'textarea-primary border-2 shadow-lg shadow-indigo-500/20'
+                      : 'hover:border-indigo-500/50'
+                  }`}
+                  placeholder={t.descriptionPlaceholder}
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  onFocus={() => setFocusedField('description')}
+                  onBlur={() => setFocusedField(null)}
+                  rows={4}
+                />
+                {description && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </div>
               <div className="label">
                 <span className="label-text-alt text-slate-500">{description.length} characters</span>
               </div>
@@ -765,14 +773,14 @@ const GoalsView: FC = () => {
                       onChange={(event) => handleStageChange(index, 'deadline', event.target.value)}
                     />
                     <div className="relative">
-                      <input
-                        type="number"
-                        min="0"
-                        placeholder={t.stageAmountPlaceholder}
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder={t.stageAmountPlaceholder}
                         className="input input-bordered w-full input-sm transition-all duration-200 hover:border-indigo-500/50 focus:border-indigo-500 focus:outline-none"
-                        value={stage.amount}
-                        onChange={(event) => handleStageChange(index, 'amount', event.target.value)}
-                      />
+                      value={stage.amount}
+                      onChange={(event) => handleStageChange(index, 'amount', event.target.value)}
+                    />
                       {stage.amount > 0 && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-indigo-400 font-semibold">
                           SOL
@@ -816,6 +824,7 @@ const GoalsView: FC = () => {
               {t.launch}
             </button>
           </div>
+          </div>
         </div>
       </section>
 
@@ -849,10 +858,10 @@ const GoalsView: FC = () => {
             return (
             <div
               key={goalKey}
-              className="card bg-base-200 shadow-lg transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:scale-[1.02] border border-base-300 hover:border-indigo-500/30 transform"
+              className="rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/20 hover:scale-[1.02] transform overflow-hidden"
               style={{ animation: `fadeInUp 0.4s ease-out ${goalIndex * 100}ms both` }}
             >
-              <div className="card-body space-y-4">
+              <div className="p-5 sm:p-6 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <h3 className="card-title text-lg bg-gradient-to-r from-indigo-400 to-fuchsia-400 bg-clip-text text-transparent">
@@ -863,7 +872,7 @@ const GoalsView: FC = () => {
                         {readEnumKey(goal.account.eventype)}
                       </span>
                       <span className="text-sm font-semibold text-indigo-400">
-                        {lamportsToSol(goal.account.totalIncentiveAmount)} SOL
+                      {lamportsToSol(goal.account.totalIncentiveAmount)} SOL
                       </span>
                     </div>
                   </div>
@@ -896,7 +905,7 @@ const GoalsView: FC = () => {
                       <span className="w-16 text-slate-400">{t.info.unlock}:</span>
                       <span>{unixToLocale(goal.account.unlockTime)}</span>
                     </p>
-                  </div>
+                </div>
                   <div className="flex items-center justify-center mt-2 text-xs text-indigo-400">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

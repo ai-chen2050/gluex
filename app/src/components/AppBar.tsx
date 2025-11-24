@@ -17,8 +17,8 @@ export const AppBar: React.FC = () => {
   const { language, setLanguage } = useLanguage();
   const navCopy =
     language === 'zh'
-      ? { home: '首页', goals: '目标', tools: '工具' }
-      : { home: 'Home', goals: 'Goals', tools: 'Tools' };
+      ? { home: '首页', goals: '目标', tools: '工具', about: '关于' }
+      : { home: 'Home', goals: 'Goals', tools: 'Tools', about: 'About' };
   const [isNavOpen, setIsNavOpen] = useState(false);
   return (
     <div>
@@ -56,6 +56,11 @@ export const AppBar: React.FC = () => {
           <NavElement
             label={navCopy.tools}
             href="/tools"
+            navigationStarts={() => setIsNavOpen(false)}
+          />
+          <NavElement
+            label={navCopy.about}
+            href="/about"
             navigationStarts={() => setIsNavOpen(false)}
           />
           <WalletMultiButtonDynamic className="btn-ghost btn-sm rounded-btn text-lg mr-6 " />

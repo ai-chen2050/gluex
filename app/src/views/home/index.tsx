@@ -1,6 +1,7 @@
 // Next, React
 import { FC, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
 import { RequestAirdrop } from '../../components/RequestAirdrop';
 import pkg from '../../../package.json';
@@ -9,9 +10,10 @@ import { useLanguage } from '../../contexts/LanguageProvider';
 
 const content = {
   en: {
-    heroTitle: 'Behavioral incentive rails for every relationship',
+    heroEyebrow: 'On-chain incentive rail',
+    heroTitle: 'Connecting everyone with Crypto glue through GlueX \nEmbrace the Future of Behavioral incentive 💰',
     heroSubtitle:
-      'Design 21-day habits, staged targets and surprise transfers with automatic verification on Solana.',
+      'Behavioral incentive rails for every relationship.\nDesign 21-day habits, staged targets and surprise transfers with automatic verification on Solana.',
     heroCta: 'Launch a mission',
     heroSecondary: 'Understand the design memo',
     highlightHeading: 'Why communities choose GlueX',
@@ -52,6 +54,7 @@ const content = {
     ctaButton: 'Open Goals workspace',
   },
   zh: {
+    heroEyebrow: '链上激励底座',
     heroTitle: 'GlueX：面向多角色关系的行为激励新范式',
     heroSubtitle: '21 天习惯、阶段性目标与惊喜时刻都可自动验证、自动结算，保障双方协商结果。',
     heroCta: '立即创建激励计划',
@@ -101,6 +104,24 @@ export const HomeView: FC = () => {
   const { language } = useLanguage();
   const t = content[language];
 
+  // Prepare hero title pieces so we can insert the rotating earth after "through GlueX"
+  const heroMarker = 'through GlueX';
+  let heroBefore = t.heroTitle;
+  let heroMarkerText = '';
+  let heroAfter = '';
+  if (t.heroTitle.includes(heroMarker)) {
+    const parts = t.heroTitle.split(heroMarker);
+    heroBefore = parts[0];
+    heroMarkerText = heroMarker;
+    heroAfter = parts.slice(1).join(heroMarker);
+  } else if (t.heroTitle.includes('\n')) {
+    // Fallback: insert after the first line for languages without the exact marker
+    const parts = t.heroTitle.split('\n');
+    heroBefore = parts[0];
+    heroMarkerText = '';
+    heroAfter = '\n' + parts.slice(1).join('\n');
+  }
+
   const balance = useUserSOLBalanceStore((s) => s.balance);
   const { getUserSOLBalance } = useUserSOLBalanceStore();
 
@@ -126,92 +147,237 @@ export const HomeView: FC = () => {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 space-y-12">
-      <section className="grid gap-8 md:grid-cols-2 items-center">
-        <div className="space-y-6">
-          <div className="text-sm text-slate-500">v{pkg.version}</div>
-          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-indigo-500 to-fuchsia-500">
-            {t.heroTitle}
-          </h1>
-          <p className="text-lg text-slate-300 leading-relaxed">{t.heroSubtitle}</p>
-          <div className="flex flex-wrap gap-4">
-            <Link href="/goals" className="btn btn-primary">
+    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-8 sm:py-12 space-y-12 sm:space-y-16">
+      {/* Hero Section */}
+      <section className="flex flex-col gap-4 sm:gap-6">
+        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-slate-950/80 to-slate-900/80 backdrop-blur-md p-5 sm:p-10 text-center space-y-3 sm:space-y-5 shadow-[0_15px_50px_rgba(79,70,229,0.25)] sm:shadow-[0_25px_100px_rgba(79,70,229,0.35)]">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-indigo-300 font-semibold">
+            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-indigo-500/50 bg-indigo-500/15 px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-[12px] font-semibold backdrop-blur-sm hover:bg-indigo-500/25 transition-all">
+              <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-fuchsia-400 animate-pulse" />
+              {t.heroEyebrow}
+            </span>
+            <span className="text-slate-500 text-xs sm:text-sm">v{pkg.version}</span>
+          </div>
+          <div className="space-y-1.5 sm:space-y-3">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-6xl font-black tracking-tight leading-tight flex items-center gap-1 justify-center">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500 relative inline-block transition-all duration-500 hover:scale-110">
+                G
+                <span className="absolute top-1/4 left-1/3 w-1.5 h-1.5 bg-green-700 rounded-sm"></span>
+              </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 relative inline-block transition-all duration-500 hover:scale-110 delay-100">
+                l
+                <span className="absolute bottom-0 left-0 w-1.5 h-2 bg-blue-800 rounded-sm"></span>
+              </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500 hover:scale-110 delay-200">u</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 relative inline-block transition-all duration-500 hover:scale-110 delay-300">
+                e
+                <span className="absolute bottom-1/4 right-1/3 w-1.5 h-1.5 bg-green-600 rounded-sm"></span>
+              </span>
+              <span className="text-white transition-all duration-500 hover:scale-110 delay-400">X</span>
+            </h1>
+            <div className="flex items-center justify-center gap-3">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white whitespace-pre-line leading-snug text-balance">
+                {heroBefore}
+                {heroMarkerText && (
+                  <>
+                    {heroMarkerText}
+                    <button
+                      type="button"
+                      title="Rotate Earth"
+                      aria-label="rotate-earth"
+                      className="inline-block ml-0 sm:ml-1 p-1 rounded-full hover:bg-white/5 transition"
+                    >
+                      <span
+                        className="rotating inline-block text-2xl sm:text-5xl transform transition duration-500 hover:scale-110"
+                        aria-hidden
+                      >
+                        🌏
+                      </span>
+                    </button>
+                  </>
+                )}
+                {!heroMarkerText && (
+                  // if marker not found, place the earth at the end of the first line
+                  <button
+                    type="button"
+                    title="Rotate Earth"
+                    aria-label="rotate-earth"
+                    className="inline-block ml-0 sm:ml-1 p-1 rounded-full hover:bg-white/5 transition"
+                  >
+                    <span
+                      className="rotating inline-block text-2xl sm:text-5xl transform transition duration-500 hover:scale-110"
+                      aria-hidden
+                    >
+                      🌏
+                    </span>
+                  </button>
+                )}
+                {heroAfter}
+                {/* scoped keyframes to make the earth rotate continuously */}
+                <style jsx>{`
+                .rotating {
+                  /* continuous slow rotation; adjust duration as desired */
+                  animation: spin 8s linear infinite;
+                }
+                @keyframes spin {
+                  from {
+                  transform: rotate(0deg);
+                  }
+                  to {
+                  transform: rotate(360deg);
+                  }
+                }
+                `}</style>
+              </h2>
+            </div>
+          </div>
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-200 leading-relaxed max-w-3xl mx-auto whitespace-pre-line text-balance">
+            {t.heroSubtitle}
+          </p>
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 justify-center pt-1 sm:pt-2">
+            <Link
+              href="/goals"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-bold bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white border-0 shadow-[0_4px_12px_rgba(136,58,255,0.2)] sm:shadow-[0_8px_24px_rgba(136,58,255,0.3)] hover:shadow-[0_8px_20px_rgba(136,58,255,0.3)] sm:hover:shadow-[0_12px_32px_rgba(136,58,255,0.4)] hover:from-indigo-400 hover:to-fuchsia-400 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs sm:text-base"
+            >
               {t.heroCta}
             </Link>
-            <Link href="https://github.com/ai-chen2050/gluex" target="_blank" className="btn btn-outline">
+            <Link
+              href="https://github.com/ai-chen2050/gluex"
+              target="_blank"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-semibold text-slate-200 border border-slate-600/50 bg-slate-900/40 hover:bg-slate-800/60 hover:text-white hover:border-indigo-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 backdrop-blur-sm text-xs sm:text-base"
+            >
               {t.heroSecondary}
             </Link>
           </div>
         </div>
-        <div className="rounded-3xl border border-base-300 bg-base-200/60 p-6 shadow-lg space-y-4">
+
+        {/* Wallet Balance Card */}
+        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/60 backdrop-blur-md p-6 sm:p-10 shadow-[0_15px_50px_rgba(79,70,229,0.15)] sm:shadow-[0_20px_70px_rgba(79,70,229,0.2)] space-y-4 sm:space-y-6 max-w-2xl w-full mx-auto">
           <RequestAirdrop />
-          <div className="text-3xl font-semibold text-center">
-            {wallet.publicKey ? (balance || 0).toLocaleString() : '—'}
-            <span className="text-base text-slate-500 ml-2">SOL</span>
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 leading-tight">
+              {wallet.publicKey ? (balance || 0).toLocaleString() : '—'}
+              <span className="text-base text-2xl sm:text-2xl md:text-2xl ml-2">SOL</span>
+            </div>
+            <div className="text-center text-xs sm:text-sm text-slate-400">SOL Balance</div>
           </div>
-          <p className="text-center text-sm text-slate-400">
+          <p className="text-center text-xs sm:text-sm text-slate-500 break-all line-clamp-2">
             {wallet.publicKey ? wallet.publicKey.toBase58() : 'Connect a wallet to preview live balances.'}
           </p>
-          <div className="mockup-code bg-base-300 text-left">
+          <div className="mockup-code bg-slate-900/80 text-left rounded-lg sm:rounded-xl border border-slate-700/50 text-xs sm:text-sm overflow-hidden">
+            <pre data-prefix="$">
+              <code className="text-indigo-300">gluex launch --habit 21d --proof auto</code>
+            </pre>
             <pre data-prefix=">">
-              <code>gluex launch --habit 21d --proof auto</code>
+              <code className="text-fuchsia-300">await vault.release()</code>
             </pre>
-            <pre data-prefix=">" className="text-warning">
-              <code>await vault.release()</code>
-            </pre>
-            <pre data-prefix=">" className="text-success">
+            <pre data-prefix=">" className="text-success text-emerald-400">
               <code># incentives routed ✔</code>
             </pre>
+
           </div>
         </div>
       </section>
 
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">{t.highlightHeading}</h2>
-        <div className="grid gap-6 md:grid-cols-3">
-          {t.highlights.map((card) => (
-            <div key={card.title} className="rounded-2xl border border-base-300 bg-base-200/60 p-5 space-y-3">
-              <h3 className="text-xl font-semibold">{card.title}</h3>
-              <p className="text-sm text-slate-400">{card.description}</p>
+      {/* Highlights Section */}
+      <section className="space-y-6 sm:space-y-8">
+        <div className="space-y-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.highlightHeading}</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
+        </div>
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+          {t.highlights.map((card, idx) => (
+            <div
+              key={card.title}
+              className="group relative rounded-xl sm:rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-4 sm:p-6 space-y-2 sm:space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 hover:from-slate-950/80 hover:to-slate-900/60 overflow-hidden"
+            >
+              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-base sm:text-lg font-bold text-indigo-300 group-hover:from-indigo-500/40 group-hover:to-fuchsia-500/40 transition-colors flex-shrink-0">
+                {idx + 1}
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-300 group-hover:to-fuchsia-300 transition-all">{card.title}</h3>
+              <p className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">{card.description}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold">{t.diagramHeading}</h2>
-        <div className="grid gap-6 md:grid-cols-2">
+      {/* Diagrams Section */}
+      <section className="space-y-6 sm:space-y-8">
+        <div className="space-y-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.diagramHeading}</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
+        </div>
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
           {t.diagrams.map((diagram) => (
-            <div key={diagram.title} className="rounded-3xl border border-base-300 bg-base-200/50 p-5 space-y-3">
-              <img src={diagram.url} alt={diagram.title} className="w-full rounded-2xl bg-base-100 max-h-96 object-contain" />
-              <h3 className="text-lg font-semibold">{diagram.title}</h3>
-              <p className="text-sm text-slate-400">{diagram.description}</p>
+            <div
+              key={diagram.title}
+              className="group rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 overflow-hidden"
+            >
+              <div className="relative rounded-lg sm:rounded-2xl overflow-hidden bg-black border border-slate-800/50 group-hover:border-indigo-500/30 transition-all">
+                <Image
+                  src={diagram.url}
+                  alt={diagram.title}
+                  width={800}
+                  height={600}
+                  className="w-full rounded-lg sm:rounded-xl bg-slate-950 h-48 sm:h-64 md:h-80 object-contain group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </div>
+              <div className="space-y-1 sm:space-y-2">
+                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-300 group-hover:to-fuchsia-300 transition-all">{diagram.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">{diagram.description}</p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">{t.inspirationHeading}</h2>
-        <p className="text-slate-300 leading-relaxed">{t.inspirationBody}</p>
+      {/* Vision Section */}
+      <section className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-fuchsia-950/30 backdrop-blur-md p-6 sm:p-10 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(79,70,229,0.15)] sm:shadow-[0_15px_60px_rgba(79,70,229,0.2)]">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300">{t.inspirationHeading}</h2>
+        <p className="text-sm sm:text-base md:text-lg text-slate-200 leading-relaxed">{t.inspirationBody}</p>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">{t.galleryHeading}</h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          {galleryImages.map((item) => (
-            <figure key={item.caption} className="rounded-2xl overflow-hidden border border-base-300">
-              <img src={item.src} alt={item.caption} className="w-full h-48 object-cover" />
-              <figcaption className="p-3 text-sm text-slate-400">{item.caption}</figcaption>
+      {/* Gallery Section */}
+      <section className="space-y-6 sm:space-y-8">
+        <div className="space-y-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.galleryHeading}</h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
+        </div>
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {galleryImages.map((item, idx) => (
+            <figure
+              key={item.caption}
+              className="group rounded-xl sm:rounded-2xl overflow-hidden border border-indigo-500/20 bg-slate-950/60 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 cursor-pointer"
+            >
+              <div className="relative overflow-hidden bg-slate-900/80 h-40 sm:h-48 md:h-56">
+                <Image
+                  src={item.src}
+                  alt={item.caption}
+                  width={800}
+                  height={400}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              </div>
+              <figcaption className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300 bg-gradient-to-r from-slate-900/80 to-slate-950/80 group-hover:text-white transition-colors">
+                <span className="text-indigo-400 font-bold mr-1.5 sm:mr-2">0{idx + 1}.</span>
+                {item.caption}
+              </figcaption>
             </figure>
           ))}
         </div>
       </section>
 
-      <section className="rounded-3xl border border-fuchsia-500/30 bg-gradient-to-br from-indigo-900/40 to-fuchsia-900/20 p-8 text-center space-y-4">
-        <h3 className="text-3xl font-semibold">{t.ctaTitle}</h3>
-        <p className="text-slate-300">{t.ctaSubtitle}</p>
-        <Link href="/goals" className="btn btn-secondary">
+      {/* Final CTA Section */}
+      <section className="rounded-2xl sm:rounded-3xl border border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-950/50 to-indigo-950/40 backdrop-blur-md p-6 sm:p-12 text-center space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(217,70,239,0.15)] sm:shadow-[0_20px_80px_rgba(217,70,239,0.2)]">
+        <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 via-rose-300 to-indigo-300">{t.ctaTitle}</h3>
+        <p className="text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl mx-auto">{t.ctaSubtitle}</p>
+        <Link
+          href="/goals"
+          className="inline-block btn btn-sm sm:btn-md px-6 sm:px-10 py-2 sm:py-3 font-bold bg-gradient-to-r from-fuchsia-500 to-rose-500 text-white border-0 shadow-[0_4px_12px_rgba(217,70,239,0.2)] sm:shadow-[0_8px_24px_rgba(217,70,239,0.3)] hover:shadow-[0_6px_16px_rgba(217,70,239,0.25)] sm:hover:shadow-[0_12px_32px_rgba(217,70,239,0.4)] hover:from-fuchsia-400 hover:to-rose-400 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs sm:text-base"
+        >
           {t.ctaButton}
         </Link>
       </section>

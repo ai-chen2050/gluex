@@ -7,7 +7,7 @@
 Run the following command in your terminal:
 
 ```sh
-sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
+sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
 ```
 
 [Other installation methods](https://docs.solana.com/cli/install-solana-cli-tools)
@@ -15,6 +15,10 @@ sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
 2. Start a local test validator
 
 ```sh
+curl -sL https://run.surfpool.run/ | bash
+surfpool start 
+
+# Alternatively, you can use the Solana test validator:
 solana-test-validator
 ```
 

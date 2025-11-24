@@ -55,7 +55,7 @@ export const Footer: FC = () => {
                                 </a>
                             </div>
                             <div className="mb-6 m-1 sm:text-left place-items-start items-start font-normal tracking-tight text-secondary">
-                                        © 2023 Crypto GlueX
+                                        © 2025 Crypto GlueX
                             </div>
                         </div>
 

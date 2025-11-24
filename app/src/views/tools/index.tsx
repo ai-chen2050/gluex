@@ -76,37 +76,37 @@ export const ToolsView: FC = () => {
   const t = copy[language];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 space-y-10">
-      <section className="space-y-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-indigo-500 to-fuchsia-500">
+    <div className="mx-auto max-w-6xl px-3 sm:px-4 py-8 sm:py-12 space-y-12 sm:space-y-16">
+      <section className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-slate-950/80 to-slate-900/80 backdrop-blur-md p-5 sm:p-10 text-center space-y-4 sm:space-y-6 shadow-[0_15px_50px_rgba(79,70,229,0.25)]">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-fuchsia-500">
           {t.title}
         </h1>
-        <p className="text-slate-300 max-w-3xl mx-auto">{t.description}</p>
+        <p className="text-sm sm:text-base md:text-lg text-slate-200 max-w-3xl mx-auto">{t.description}</p>
       </section>
 
       <section className="grid md:grid-cols-2 gap-6 items-start">
-        <div className="rounded-3xl border border-base-300 bg-base-200/70 p-6 space-y-4 shadow-lg">
-          <p className="text-sm uppercase tracking-wide text-fuchsia-400">{t.quickActions}</p>
+        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-5 sm:p-6 space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)]">
+          <p className="text-sm uppercase tracking-wide text-indigo-300 font-semibold">{t.quickActions}</p>
           <div className="space-y-4">
-            <div className="rounded-2xl border border-base-300 bg-base-100/40 p-4">
+            <div className="rounded-xl sm:rounded-2xl border border-indigo-500/10 bg-slate-900/40 p-4">
               <SignMessage />
             </div>
-            <div className="rounded-2xl border border-base-300 bg-base-100/40 p-4">
+            <div className="rounded-xl sm:rounded-2xl border border-indigo-500/10 bg-slate-900/40 p-4">
               <SendTransaction />
             </div>
-            <div className="rounded-2xl border border-base-300 bg-base-100/40 p-4">
+            <div className="rounded-xl sm:rounded-2xl border border-indigo-500/10 bg-slate-900/40 p-4">
               <SendVersionedTransaction />
             </div>
           </div>
         </div>
 
-        <div className="rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-900/30 to-fuchsia-900/10 p-6 space-y-4 shadow-lg">
-          <h2 className="text-2xl font-semibold">{t.playgroundTitle}</h2>
+        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-5 sm:p-6 space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.12)]">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-white">{t.playgroundTitle}</h2>
           <p className="text-slate-300">{t.playgroundCopy}</p>
           <div className="grid gap-4">
             {t.recipeCards.map((card) => (
-              <div key={card.title} className="rounded-2xl bg-base-100/40 border border-base-300 p-4">
-                <h3 className="text-lg font-semibold">{card.title}</h3>
+              <div key={card.title} className="rounded-2xl border border-indigo-500/10 bg-slate-900/40 p-4">
+                <h3 className="text-lg font-semibold text-white">{card.title}</h3>
                 <p className="text-sm text-slate-400">{card.desc}</p>
               </div>
             ))}
@@ -114,8 +114,8 @@ export const ToolsView: FC = () => {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-base-300 bg-base-200/60 p-6 space-y-4 shadow-lg">
-        <h2 className="text-2xl font-semibold">{t.guideTitle}</h2>
+      <section className="rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/70 to-slate-900/50 backdrop-blur-md p-5 sm:p-6 space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.12)]">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-white">{t.guideTitle}</h2>
         <ol className="list-decimal list-inside space-y-2 text-slate-300">
           {t.steps.map((step, idx) => (
             <li key={idx}>{step}</li>
