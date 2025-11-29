@@ -8,7 +8,7 @@ use anchor_lang::solana_program::{
     sysvar::{clock::Clock, Sysvar},
 };
 
-declare_id!("DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8");
+declare_id!("6ExBjE2VPbP8YZhWoXuBgSac5MHS3J8dfviUFuUeBqZe");
 
 // 定义合约的入口函数
 entrypoint!(process_instruction);
@@ -49,8 +49,8 @@ fn process_instruction(
     let total_goal = TotalGoal {
         description: "Total Goal".to_string(),
         sub_goals,
-        total_incentive_amount: 500000000, // 总激励金额
-        completion_time: 1700000000, // 总目标完成时间
+        total_incentive_amount: 500000000,         // 总激励金额
+        completion_time: 1700000000,               // 总目标完成时间
         locked_amount: sender_balance - 500000000, // 锁仓金额为总激励金额之外的余额
         unlock_time: 1700000000 + (3 * 30 * 24 * 60 * 60), // 锁仓解锁时间为完成时间后三个月
     };
@@ -74,18 +74,18 @@ fn process_instruction(
 
 // 定义子目标结构体
 struct SubGoal {
-    description: String, // 子目标描述
-    deadline: u64, // 完成截止时间
-    completed: bool, // 完成状态
+    description: String,   // 子目标描述
+    deadline: u64,         // 完成截止时间
+    completed: bool,       // 完成状态
     incentive_amount: u64, // 激励金额
 }
 
 // 定义总目标结构体
 struct TotalGoal {
-    description: String, // 总目标描述
-    sub_goals: Vec<SubGoal>, // 子目标列表
+    description: String,         // 总目标描述
+    sub_goals: Vec<SubGoal>,     // 子目标列表
     total_incentive_amount: u64, // 总激励金额
-    completion_time: u64, // 总目标完成时间
-    locked_amount: u64, // 锁仓金额
-    unlock_time: u64, // 锁仓解锁时间
+    completion_time: u64,        // 总目标完成时间
+    locked_amount: u64,          // 锁仓金额
+    unlock_time: u64,            // 锁仓解锁时间
 }

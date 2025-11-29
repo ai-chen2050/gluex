@@ -1,28 +1,46 @@
-use anchor_lang::prelude::*;
 use super::constraints::{
-    MAX_DESCRIPTION_BYTES, MAX_PROOF_URI_LENGTH, MAX_SUBGOAL_TITLE_LENGTH, MAXIUMUN_SUBGOALS,
+    MAXIUMUN_SUBGOALS, MAX_DESCRIPTION_BYTES, MAX_PROOF_URI_LENGTH, MAX_SUBGOAL_TITLE_LENGTH,
 };
+use anchor_lang::prelude::*;
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub enum Roomspace {
     LoveGame = 1,
     GroupGame,
-} 
+}
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
+impl Default for Roomspace {
+    fn default() -> Self {
+        Roomspace::LoveGame
+    }
+}
+
+#[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub enum Relations {
     Parents = 1,
     Lover,
     Bosstaff,
-    Partner,    // include friends
-    Dao,        // stranger
+    Partner, // include friends
+    Dao,     // stranger
 }
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
+impl Default for Relations {
+    fn default() -> Self {
+        Relations::Parents
+    }
+}
+
+#[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
 pub enum EventType {
     HabitTraning = 1,
     TargetAchieve,
-    SurpriseTime
+    SurpriseTime,
+}
+
+impl Default for EventType {
+    fn default() -> Self {
+        EventType::HabitTraning
+    }
 }
 
 #[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize, PartialEq, Eq)]
@@ -55,17 +73,33 @@ pub struct GoalConfigInput {
     pub checkpoint_interval: i64,
 }
 
-#[derive(Debug, Default, Clone, Copy, AnchorSerialize, AnchorDeserialize)]
+#[derive(Debug, Clone, Copy, AnchorSerialize, AnchorDeserialize)]
 pub struct SubGoal {
     pub title: [u8; MAX_SUBGOAL_TITLE_LENGTH], // subgoal description
-    pub deadline: i64, // completed deadline
-    pub incentive_amount: u64, // incentive amount
-    pub status: SubGoalStatus, // lifecycle status
+    pub deadline: i64,                         // completed deadline
+    pub incentive_amount: u64,                 // incentive amount
+    pub status: SubGoalStatus,                 // lifecycle status
     pub proof_uri: [u8; MAX_PROOF_URI_LENGTH],
     pub submitted_at: i64,
     pub verifier: Pubkey,
     pub auto_release_at: i64,
     pub is_active: bool,
+}
+
+impl Default for SubGoal {
+    fn default() -> Self {
+        SubGoal {
+            title: [0; MAX_SUBGOAL_TITLE_LENGTH],
+            deadline: 0,
+            incentive_amount: 0,
+            status: SubGoalStatus::Pending,
+            proof_uri: [0; MAX_PROOF_URI_LENGTH],
+            submitted_at: 0,
+            verifier: Pubkey::default(),
+            auto_release_at: 0,
+            is_active: false,
+        }
+    }
 }
 
 impl SubGoal {
@@ -78,9 +112,9 @@ impl SubGoal {
 }
 
 #[account]
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct TotalGoal {
-    pub issuer: Pubkey, // 8 + (32 * 2) + des.len() + 3 + (40 * 3) + (8 * 4) + 1 
+    pub issuer: Pubkey, // 8 + (32 * 2) + des.len() + 3 + (40 * 3) + (8 * 4) + 1
     pub taker: Pubkey,
     pub description: String, // capped via MAX_DESCRIPTION_BYTES
     pub room: Roomspace,
@@ -92,8 +126,8 @@ pub struct TotalGoal {
     pub deposited_amount: u64,
     pub released_amount: u64,
     pub completion_time: i64, // total goal completed
-    pub locked_amount: u64, // lock amount
-    pub unlock_time: i64, // unlock time
+    pub locked_amount: u64,   // lock amount
+    pub unlock_time: i64,     // unlock time
     pub start_time: i64,
     pub surprise_trigger_ts: i64,
     pub checkpoint_interval: i64,
@@ -108,11 +142,7 @@ impl TotalGoal {
     }
 
     pub fn goal_seeds(&self) -> [&[u8]; 3] {
-        [
-            b"gluex-goals",
-            self.issuer.as_ref(),
-            self.taker.as_ref(),
-        ]
+        [b"gluex-goals", self.issuer.as_ref(), self.taker.as_ref()]
     }
 }
 
@@ -137,5 +167,5 @@ pub fn trim_fixed_string(bytes: &[u8]) -> String {
 //     pub name: String,
 //     pub count: String,
 //     pub bump: u8,
-//     pub goal: Vec<TotalGoal> 
+//     pub goal: Vec<TotalGoal>
 // }

@@ -1,132 +1,126 @@
 {
-  "version": "0.1.0",
-  "name": "gluex",
+  "address": "6ExBjE2VPbP8YZhWoXuBgSac5MHS3J8dfviUFuUeBqZe",
+  "metadata": {
+    "name": "gluex",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
   "instructions": [
     {
-      "name": "setupGoal",
-      "accounts": [
-        {
-          "name": "goals",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        }
+      "name": "claim_unused",
+      "discriminator": [
+        124,
+        236,
+        21,
+        199,
+        101,
+        61,
+        78,
+        61
       ],
-      "args": [
-        {
-          "name": "taker",
-          "type": "publicKey"
-        },
-        {
-          "name": "description",
-          "type": "string"
-        },
-        {
-          "name": "room",
-          "type": {
-            "defined": "Roomspace"
-          }
-        },
-        {
-          "name": "relations",
-          "type": {
-            "defined": "Relations"
-          }
-        },
-        {
-          "name": "eventype",
-          "type": {
-            "defined": "EventType"
-          }
-        },
-        {
-          "name": "subGoals",
-          "type": {
-            "vec": {
-              "defined": "SubGoalInput"
-            }
-          }
-        },
-        {
-          "name": "totalIncentiveAmount",
-          "type": "u64"
-        },
-        {
-          "name": "completionTime",
-          "type": "i64"
-        },
-        {
-          "name": "lockedAmount",
-          "type": "u64"
-        },
-        {
-          "name": "unlockTime",
-          "type": "i64"
-        },
-        {
-          "name": "config",
-          "type": {
-            "defined": "GoalConfigInput"
-          }
-        }
-      ]
-    },
-    {
-      "name": "submitProof",
       "accounts": [
         {
           "name": "goals",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "taker",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "subgoalIndex",
-          "type": "u8"
-        },
-        {
-          "name": "proofUri",
-          "type": "string"
-        }
-      ]
-    },
-    {
-      "name": "reviewSubgoal",
-      "accounts": [
-        {
-          "name": "goals",
-          "isMut": true,
-          "isSigner": false
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  103,
+                  111,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "goals.issuer",
+                "account": "TotalGoal"
+              },
+              {
+                "kind": "account",
+                "path": "goals.taker",
+                "account": "TotalGoal"
+              }
+            ]
+          }
         },
         {
           "name": "issuer",
-          "isMut": false,
-          "isSigner": true
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "review_subgoal",
+      "discriminator": [
+        221,
+        94,
+        97,
+        70,
+        217,
+        114,
+        201,
+        12
+      ],
+      "accounts": [
+        {
+          "name": "goals",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  103,
+                  111,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "goals.issuer",
+                "account": "TotalGoal"
+              },
+              {
+                "kind": "account",
+                "path": "goals.taker",
+                "account": "TotalGoal"
+              }
+            ]
+          }
         },
         {
-          "name": "takerAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "issuer",
+          "signer": true
+        },
+        {
+          "name": "taker_account",
+          "writable": true
         }
       ],
       "args": [
         {
-          "name": "subgoalIndex",
+          "name": "subgoal_index",
           "type": "u8"
         },
         {
@@ -136,33 +130,242 @@
       ]
     },
     {
-      "name": "triggerSurprise",
+      "name": "setup_goal",
+      "discriminator": [
+        171,
+        112,
+        224,
+        9,
+        171,
+        187,
+        146,
+        248
+      ],
       "accounts": [
         {
           "name": "goals",
-          "isMut": true,
-          "isSigner": false
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  103,
+                  111,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              },
+              {
+                "kind": "arg",
+                "path": "taker"
+              }
+            ]
+          }
         },
         {
-          "name": "takerAccount",
-          "isMut": true,
-          "isSigner": false
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
         }
       ],
-      "args": []
+      "args": [
+        {
+          "name": "taker",
+          "type": "pubkey"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "room",
+          "type": {
+            "defined": {
+              "name": "Roomspace"
+            }
+          }
+        },
+        {
+          "name": "relations",
+          "type": {
+            "defined": {
+              "name": "Relations"
+            }
+          }
+        },
+        {
+          "name": "eventype",
+          "type": {
+            "defined": {
+              "name": "EventType"
+            }
+          }
+        },
+        {
+          "name": "sub_goals",
+          "type": {
+            "vec": {
+              "defined": {
+                "name": "SubGoalInput"
+              }
+            }
+          }
+        },
+        {
+          "name": "total_incentive_amount",
+          "type": "u64"
+        },
+        {
+          "name": "completion_time",
+          "type": "i64"
+        },
+        {
+          "name": "locked_amount",
+          "type": "u64"
+        },
+        {
+          "name": "unlock_time",
+          "type": "i64"
+        },
+        {
+          "name": "config",
+          "type": {
+            "defined": {
+              "name": "GoalConfigInput"
+            }
+          }
+        }
+      ]
     },
     {
-      "name": "claimUnused",
+      "name": "submit_proof",
+      "discriminator": [
+        54,
+        241,
+        46,
+        84,
+        4,
+        212,
+        46,
+        94
+      ],
       "accounts": [
         {
           "name": "goals",
-          "isMut": true,
-          "isSigner": false
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  103,
+                  111,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "goals.issuer",
+                "account": "TotalGoal"
+              },
+              {
+                "kind": "account",
+                "path": "goals.taker",
+                "account": "TotalGoal"
+              }
+            ]
+          }
         },
         {
-          "name": "issuer",
-          "isMut": true,
-          "isSigner": true
+          "name": "taker",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "subgoal_index",
+          "type": "u8"
+        },
+        {
+          "name": "proof_uri",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "trigger_surprise",
+      "discriminator": [
+        186,
+        90,
+        173,
+        71,
+        154,
+        255,
+        243,
+        253
+      ],
+      "accounts": [
+        {
+          "name": "goals",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  103,
+                  111,
+                  97,
+                  108,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "goals.issuer",
+                "account": "TotalGoal"
+              },
+              {
+                "kind": "account",
+                "path": "goals.taker",
+                "account": "TotalGoal"
+              }
+            ]
+          }
+        },
+        {
+          "name": "taker_account",
+          "writable": true
         }
       ],
       "args": []
@@ -170,291 +373,23 @@
   ],
   "accounts": [
     {
-      "name": "totalGoal",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "issuer",
-            "type": "publicKey"
-          },
-          {
-            "name": "taker",
-            "type": "publicKey"
-          },
-          {
-            "name": "description",
-            "type": "string"
-          },
-          {
-            "name": "room",
-            "type": {
-              "defined": "Roomspace"
-            }
-          },
-          {
-            "name": "relations",
-            "type": {
-              "defined": "Relations"
-            }
-          },
-          {
-            "name": "eventype",
-            "type": {
-              "defined": "EventType"
-            }
-          },
-          {
-            "name": "subGoals",
-            "type": {
-              "array": [
-                {
-                  "defined": "SubGoal"
-                },
-                5
-              ]
-            }
-          },
-          {
-            "name": "activeSubGoals",
-            "type": "u8"
-          },
-          {
-            "name": "totalIncentiveAmount",
-            "type": "u64"
-          },
-          {
-            "name": "depositedAmount",
-            "type": "u64"
-          },
-          {
-            "name": "releasedAmount",
-            "type": "u64"
-          },
-          {
-            "name": "completionTime",
-            "type": "i64"
-          },
-          {
-            "name": "lockedAmount",
-            "type": "u64"
-          },
-          {
-            "name": "unlockTime",
-            "type": "i64"
-          },
-          {
-            "name": "startTime",
-            "type": "i64"
-          },
-          {
-            "name": "surpriseTriggerTs",
-            "type": "i64"
-          },
-          {
-            "name": "checkpointInterval",
-            "type": "i64"
-          },
-          {
-            "name": "completedCount",
-            "type": "u8"
-          },
-          {
-            "name": "failed",
-            "type": "bool"
-          },
-          {
-            "name": "bump",
-            "type": "u8"
-          }
-        ]
-      }
-    }
-  ],
-  "types": [
-    {
-      "name": "Roomspace",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "LoveGame"
-          },
-          {
-            "name": "GroupGame"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Relations",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Parents"
-          },
-          {
-            "name": "Lover"
-          },
-          {
-            "name": "Bosstaff"
-          },
-          {
-            "name": "Partner"
-          },
-          {
-            "name": "Dao"
-          }
-        ]
-      }
-    },
-    {
-      "name": "EventType",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "HabitTraning"
-          },
-          {
-            "name": "TargetAchieve"
-          },
-          {
-            "name": "SurpriseTime"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SubGoalStatus",
-      "type": {
-        "kind": "enum",
-        "variants": [
-          {
-            "name": "Pending"
-          },
-          {
-            "name": "ProofSubmitted"
-          },
-          {
-            "name": "Approved"
-          },
-          {
-            "name": "Rejected"
-          },
-          {
-            "name": "Paid"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SubGoal",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "title",
-            "type": {
-              "array": [
-                "u8",
-                48
-              ]
-            }
-          },
-          {
-            "name": "deadline",
-            "type": "i64"
-          },
-          {
-            "name": "incentiveAmount",
-            "type": "u64"
-          },
-          {
-            "name": "status",
-            "type": {
-              "defined": "SubGoalStatus"
-            }
-          },
-          {
-            "name": "proofUri",
-            "type": {
-              "array": [
-                "u8",
-                128
-              ]
-            }
-          },
-          {
-            "name": "submittedAt",
-            "type": "i64"
-          },
-          {
-            "name": "verifier",
-            "type": "publicKey"
-          },
-          {
-            "name": "autoReleaseAt",
-            "type": "i64"
-          },
-          {
-            "name": "isActive",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "SubGoalInput",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "name": "deadline",
-            "type": "i64"
-          },
-          {
-            "name": "incentiveAmount",
-            "type": "u64"
-          },
-          {
-            "name": "autoReleaseAt",
-            "type": "i64"
-          }
-        ]
-      }
-    },
-    {
-      "name": "GoalConfigInput",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "startTime",
-            "type": "i64"
-          },
-          {
-            "name": "surpriseTime",
-            "type": "i64"
-          },
-          {
-            "name": "checkpointInterval",
-            "type": "i64"
-          }
-        ]
-      }
+      "name": "TotalGoal",
+      "discriminator": [
+        72,
+        64,
+        113,
+        26,
+        170,
+        125,
+        93,
+        94
+      ]
     }
   ],
   "errors": [
     {
       "code": 6000,
-      "name": "None",
-      "msg": ""
+      "name": "None"
     },
     {
       "code": 6001,
@@ -572,8 +507,294 @@
       "msg": "Invalid subgoal format"
     }
   ],
-  "metadata": {
-    "address": "DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8"
-  }
+  "types": [
+    {
+      "name": "EventType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "HabitTraning"
+          },
+          {
+            "name": "TargetAchieve"
+          },
+          {
+            "name": "SurpriseTime"
+          }
+        ]
+      }
+    },
+    {
+      "name": "GoalConfigInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "surprise_time",
+            "type": "i64"
+          },
+          {
+            "name": "checkpoint_interval",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Relations",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Parents"
+          },
+          {
+            "name": "Lover"
+          },
+          {
+            "name": "Bosstaff"
+          },
+          {
+            "name": "Partner"
+          },
+          {
+            "name": "Dao"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Roomspace",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "LoveGame"
+          },
+          {
+            "name": "GroupGame"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubGoal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": {
+              "array": [
+                "u8",
+                48
+              ]
+            }
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "incentive_amount",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "SubGoalStatus"
+              }
+            }
+          },
+          {
+            "name": "proof_uri",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "submitted_at",
+            "type": "i64"
+          },
+          {
+            "name": "verifier",
+            "type": "pubkey"
+          },
+          {
+            "name": "auto_release_at",
+            "type": "i64"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubGoalInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "incentive_amount",
+            "type": "u64"
+          },
+          {
+            "name": "auto_release_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SubGoalStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "ProofSubmitted"
+          },
+          {
+            "name": "Approved"
+          },
+          {
+            "name": "Rejected"
+          },
+          {
+            "name": "Paid"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TotalGoal",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "issuer",
+            "type": "pubkey"
+          },
+          {
+            "name": "taker",
+            "type": "pubkey"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "room",
+            "type": {
+              "defined": {
+                "name": "Roomspace"
+              }
+            }
+          },
+          {
+            "name": "relations",
+            "type": {
+              "defined": {
+                "name": "Relations"
+              }
+            }
+          },
+          {
+            "name": "eventype",
+            "type": {
+              "defined": {
+                "name": "EventType"
+              }
+            }
+          },
+          {
+            "name": "sub_goals",
+            "type": {
+              "array": [
+                {
+                  "defined": {
+                    "name": "SubGoal"
+                  }
+                },
+                5
+              ]
+            }
+          },
+          {
+            "name": "active_sub_goals",
+            "type": "u8"
+          },
+          {
+            "name": "total_incentive_amount",
+            "type": "u64"
+          },
+          {
+            "name": "deposited_amount",
+            "type": "u64"
+          },
+          {
+            "name": "released_amount",
+            "type": "u64"
+          },
+          {
+            "name": "completion_time",
+            "type": "i64"
+          },
+          {
+            "name": "locked_amount",
+            "type": "u64"
+          },
+          {
+            "name": "unlock_time",
+            "type": "i64"
+          },
+          {
+            "name": "start_time",
+            "type": "i64"
+          },
+          {
+            "name": "surprise_trigger_ts",
+            "type": "i64"
+          },
+          {
+            "name": "checkpoint_interval",
+            "type": "i64"
+          },
+          {
+            "name": "completed_count",
+            "type": "u8"
+          },
+          {
+            "name": "failed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
 }
-

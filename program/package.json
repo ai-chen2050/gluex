@@ -1,19 +1,23 @@
 {
+    "type": "module",
     "scripts": {
         "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+        "test": "ts-mocha -p ./tsconfig.json --timeout 1000000 'tests/**/*.ts'"
     },
     "dependencies": {
-        "@project-serum/anchor": "^0.24.2"
+        "@coral-xyz/anchor": "0.32.1",
+        "@solana/web3.js": "^1.91.0",
+        "bn.js": "^5.2.1"
     },
     "devDependencies": {
-        "@types/bn.js": "^5.1.0",
-        "@types/chai": "^4.3.0",
-        "@types/mocha": "^9.0.0",
-        "chai": "^4.3.4",
-        "mocha": "^9.0.3",
-        "prettier": "^2.6.2",
+        "@types/bn.js": "^5.1.5",
+        "@types/chai": "^4.3.11",
+        "@types/mocha": "^10.0.6",
+        "chai": "^4.3.11",
+        "mocha": "^10.2.0",
+        "prettier": "^3.1.1",
         "ts-mocha": "^10.0.0",
-        "typescript": "^4.3.5"
+        "typescript": "^5.3.3"
     }
 }

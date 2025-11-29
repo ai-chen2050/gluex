@@ -246,7 +246,7 @@ const GoalsView: FC = () => {
   const refreshGoals = useCallback(async () => {
     if (!program || !wallet.publicKey) return;
     try {
-      const items = await program.account.totalGoal.all();
+      const items = await program.account['totalGoal'].all();
       setGoals(
         items.filter(
           (item) =>

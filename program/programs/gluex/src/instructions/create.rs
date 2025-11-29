@@ -59,7 +59,7 @@ pub fn setup_goal(
     new_goals.checkpoint_interval = checkpoint_interval;
     new_goals.completed_count = 0;
     new_goals.failed = false;
-    new_goals.bump = *ctx.bumps.get("gluex-goals").unwrap();  
+    new_goals.bump = ctx.bumps.goals;  
 
     let transfer_ix = system_instruction::transfer(
         &ctx.accounts.payer.key(),

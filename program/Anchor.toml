@@ -1,14 +1,18 @@
 [features]
 seeds = false
+
 [programs.localnet]
-gluex = "DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8"
+gluex = "6ExBjE2VPbP8YZhWoXuBgSac5MHS3J8dfviUFuUeBqZe"
+
+[programs.devnet]
+gluex = "6ExBjE2VPbP8YZhWoXuBgSac5MHS3J8dfviUFuUeBqZe"
 
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
-cluster = "localnet"
+cluster = "devnet"
 wallet = "/Users/blake/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "yarn test"

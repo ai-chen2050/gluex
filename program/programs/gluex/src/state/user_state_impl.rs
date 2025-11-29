@@ -1,5 +1,4 @@
 use crate::state::*;
-use anchor_lang::prelude::*;
 use super::constraints::{HABIT_CHECKPOINTS, HABIT_INTERVAL_SECONDS, MAXIUMUN_SUBGOALS};
 
 impl SubGoal {

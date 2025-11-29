@@ -4,7 +4,7 @@ import { PublicKey } from '@solana/web3.js';
 import { useMemo } from 'react';
 import idl from '../idl/gluex.json';
 
-const PROGRAM_ID = new PublicKey(idl.metadata.address);
+const PROGRAM_ID = new PublicKey(idl.address);
 
 export const useGlueXProgram = () => {
   const wallet = useWallet();
@@ -21,7 +21,7 @@ export const useGlueXProgram = () => {
       AnchorProvider.defaultOptions(),
     );
 
-    return new Program(idl as Idl, PROGRAM_ID, provider);
+    return new Program(idl as Idl, provider);
   }, [connection, wallet]);
 };
 

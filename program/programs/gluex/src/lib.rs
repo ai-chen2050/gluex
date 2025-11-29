@@ -1,11 +1,11 @@
 use anchor_lang::prelude::*;
-use state::*;
 use instructions::*;
+use state::*;
 
 pub mod instructions;
 pub mod state;
 
-declare_id!("DzZByscRszKLgwFTVM6BMtbG8aBYXfWTbSU7sa9gj5a8");
+declare_id!("6ExBjE2VPbP8YZhWoXuBgSac5MHS3J8dfviUFuUeBqZe");
 
 #[program]
 pub mod gluex {
@@ -19,13 +19,27 @@ pub mod gluex {
         room: Roomspace,
         relations: Relations,
         eventype: EventType,
-        sub_goals: [SubGoal; 3], 
+        sub_goals: Vec<SubGoalInput>,
         total_incentive_amount: u64,
-        completion_time: u64, 
+        completion_time: i64,
         locked_amount: u64,
-        unlock_time: u64
+        unlock_time: i64,
+        config: GoalConfigInput,
     ) -> Result<()> {
-        instructions::create::setup_goal(ctx, taker, description, room, relations, eventype, sub_goals, total_incentive_amount, completion_time, locked_amount, unlock_time)
+        instructions::create::setup_goal(
+            ctx,
+            taker,
+            description,
+            room,
+            relations,
+            eventype,
+            sub_goals,
+            total_incentive_amount,
+            completion_time,
+            locked_amount,
+            unlock_time,
+            config,
+        )
     }
 
     pub fn submit_proof(

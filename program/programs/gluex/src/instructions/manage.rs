@@ -38,28 +38,33 @@ pub fn review_subgoal(
 
     let index = subgoal_index as usize;
     require!(index < goals.active_sub_goals as usize, GluXError::SubGoalIndexOutOfBounds);
-    let goal = &mut goals.sub_goals[index];
-    require!(goal.is_active, GluXError::SubGoalIndexOutOfBounds);
+    
+    let incentive_amount = {
+        let goal = &mut goals.sub_goals[index];
+        require!(goal.is_active, GluXError::SubGoalIndexOutOfBounds);
 
-    if !approve {
-        goal.status = SubGoalStatus::Rejected;
-        return Ok(());
-    }
+        if !approve {
+            goal.status = SubGoalStatus::Rejected;
+            return Ok(());
+        }
 
-    require!(
-        matches!(goal.status, SubGoalStatus::ProofSubmitted | SubGoalStatus::Pending),
-        GluXError::ProofMissing
-    );
+        require!(
+            matches!(goal.status, SubGoalStatus::ProofSubmitted | SubGoalStatus::Pending),
+            GluXError::ProofMissing
+        );
 
-    goal.status = SubGoalStatus::Approved;
+        goal.status = SubGoalStatus::Approved;
+        goal.incentive_amount
+    };
+    
     payout_to_taker(
         goals,
         ctx.accounts.taker_account.to_account_info(),
-        goal.incentive_amount,
+        incentive_amount,
     )?;
 
-    goal.status = SubGoalStatus::Paid;
-    goals.released_amount = goals.released_amount.saturating_add(goal.incentive_amount);
+    goals.sub_goals[index].status = SubGoalStatus::Paid;
+    goals.released_amount = goals.released_amount.saturating_add(incentive_amount);
     goals.completed_count = goals.completed_count.saturating_add(1);
     Ok(())
 }
@@ -71,20 +76,23 @@ pub fn trigger_surprise(ctx: Context<TriggerSurprise>) -> Result<()> {
     require!(matches!(goals.eventype, EventType::SurpriseTime), GluXError::EventTypeNotSupport);
     require!(now >= goals.surprise_trigger_ts, GluXError::SurpriseTimeNotReached);
 
-    let goal = &mut goals.sub_goals[0];
-    require!(goal.is_active, GluXError::SubGoalIndexOutOfBounds);
-    if matches!(goal.status, SubGoalStatus::Paid) {
-        return err!(GluXError::SubGoalAlreadyFinalized);
-    }
+    let incentive_amount = {
+        let goal = &mut goals.sub_goals[0];
+        require!(goal.is_active, GluXError::SubGoalIndexOutOfBounds);
+        if matches!(goal.status, SubGoalStatus::Paid) {
+            return err!(GluXError::SubGoalAlreadyFinalized);
+        }
+        goal.incentive_amount
+    };
 
     payout_to_taker(
         goals,
         ctx.accounts.taker_account.to_account_info(),
-        goal.incentive_amount,
+        incentive_amount,
     )?;
 
-    goal.status = SubGoalStatus::Paid;
-    goals.released_amount = goals.released_amount.saturating_add(goal.incentive_amount);
+    goals.sub_goals[0].status = SubGoalStatus::Paid;
+    goals.released_amount = goals.released_amount.saturating_add(incentive_amount);
     goals.completed_count = goals.completed_count.saturating_add(1);
     Ok(())
 }
