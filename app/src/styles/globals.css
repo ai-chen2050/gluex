@@ -62,3 +62,19 @@ a {
     transform: translateX(0);
   }
 }
+
+/* Improve contrast of native date/datetime picker icon on dark backgrounds */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  /* invert + brighten to make dark icons visible on dark theme */
+  filter: invert(1) brightness(2) contrast(1.2);
+  opacity: 0.95;
+  cursor: pointer;
+}
+
+/* also make clear/reset icon more visible in WebKit */
+input[type="date"]::-webkit-clear-button,
+input[type="datetime-local"]::-webkit-clear-button {
+  filter: invert(1) brightness(2) contrast(1.2);
+  opacity: 0.95;
+}

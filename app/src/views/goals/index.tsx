@@ -6,6 +6,7 @@ import { useGlueXProgram } from '../../hooks/useGlueXProgram';
 import useNotificationStore from '../../stores/useNotificationStore';
 import { decodeFixedString, lamportsToSol, solToLamports, toUnixSeconds } from '../../utils/solana';
 import { useLanguage } from '../../contexts/LanguageProvider';
+import { useNetworkConfiguration } from '../../contexts/NetworkConfigurationProvider';
 
 type StageInput = { title: string; deadline: string; amount: number };
 
@@ -193,7 +194,11 @@ const GoalsView: FC = () => {
   const program = useGlueXProgram();
   const { set: pushNotification } = useNotificationStore();
   const { language } = useLanguage();
+  const { networkConfiguration } = useNetworkConfiguration();
   const t = copy[language];
+  
+  // Convert network name to solscan param
+  const solscanParam = networkConfiguration === 'mainnet' ? '' : `?cluster=${networkConfiguration}`;
 
   const roomOptions = useMemo(
     () => ROOM_DEFS.map((item) => ({ ...item, label: item.labels[language] })),
@@ -226,6 +231,7 @@ const GoalsView: FC = () => {
   const [goals, setGoals] = useState<any[]>([]);
   const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [lastTxs, setLastTxs] = useState<Record<string, string>>({});
 
   const isHabit = useMemo(() => !!eventType.habitTraning, [eventType]);
   const isTarget = useMemo(() => !!eventType.targetAchieve, [eventType]);
@@ -348,7 +354,7 @@ const GoalsView: FC = () => {
       const completionTime = new BN(toUnixSeconds(completionDate));
       const unlockTime = new BN(toUnixSeconds(unlockDate));
 
-      await program.methods
+      const sig = await program.methods
         .setupGoal(
           taker,
           description,
@@ -368,6 +374,9 @@ const GoalsView: FC = () => {
           systemProgram: SystemProgram.programId,
         })
         .rpc();
+
+      // record tx signature for the newly created goal PDA
+      setLastTxs((prev) => ({ ...prev, [goalsPda.toBase58()]: sig }));
 
       notify('success', t.notifications.createSuccess);
       refreshGoals();
@@ -389,13 +398,14 @@ const GoalsView: FC = () => {
     }
 
     try {
-      await program.methods
+      const sig = await program.methods
         .submitProof(index, uri)
         .accounts({
           goals: goal.publicKey,
           taker: wallet.publicKey,
         })
         .rpc();
+      setLastTxs((prev) => ({ ...prev, [goal.publicKey.toBase58()]: sig }));
       notify('success', t.notifications.proofSubmitted, `${t.stageLabel} #${index + 1}`);
       refreshGoals();
     } catch (error) {
@@ -407,7 +417,7 @@ const GoalsView: FC = () => {
   const reviewSubgoal = async (goal: any, index: number, approve: boolean) => {
     if (!program || !wallet.publicKey) return;
     try {
-      await program.methods
+      const sig = await program.methods
         .reviewSubgoal(index, approve)
         .accounts({
           goals: goal.publicKey,
@@ -415,6 +425,7 @@ const GoalsView: FC = () => {
           takerAccount: goal.account.taker,
         })
         .rpc();
+      setLastTxs((prev) => ({ ...prev, [goal.publicKey.toBase58()]: sig }));
       notify(approve ? 'success' : 'info', approve ? t.notifications.reviewSuccess : t.notifications.reviewReject);
       refreshGoals();
     } catch (error) {
@@ -426,13 +437,14 @@ const GoalsView: FC = () => {
   const triggerSurprise = async (goal: any) => {
     if (!program) return;
     try {
-      await program.methods
+      const sig = await program.methods
         .triggerSurprise()
         .accounts({
           goals: goal.publicKey,
           takerAccount: goal.account.taker,
         })
         .rpc();
+      setLastTxs((prev) => ({ ...prev, [goal.publicKey.toBase58()]: sig }));
       notify('success', t.notifications.surpriseSuccess);
       refreshGoals();
     } catch (error) {
@@ -444,13 +456,14 @@ const GoalsView: FC = () => {
   const claimUnused = async (goal: any) => {
     if (!program || !wallet.publicKey) return;
     try {
-      await program.methods
+      const sig = await program.methods
         .claimUnused()
         .accounts({
           goals: goal.publicKey,
           issuer: wallet.publicKey,
         })
         .rpc();
+      setLastTxs((prev) => ({ ...prev, [goal.publicKey.toBase58()]: sig }));
       notify('success', t.notifications.claimSuccess);
       refreshGoals();
     } catch (error) {
@@ -490,6 +503,41 @@ const GoalsView: FC = () => {
         <p className="text-xs text-slate-400">
           {t.incentive}: {lamportsToSol(subGoal.incentiveAmount)} SOL
         </p>
+        {/* show submitted proof link if available so reviewers can open it */}
+        {(() => {
+          const proofUri = decodeFixedString(subGoal.proofUri ?? []);
+          if (proofUri && proofUri.trim().length > 0) {
+            const href = proofUri.startsWith('http://') || proofUri.startsWith('https://') ? proofUri : `https://${proofUri}`;
+            return (
+              <div className="mt-2">
+                <div className="text-xs text-slate-400">Proof of work:</div>
+                <a
+                  className="text-indigo-400 underline text-sm break-all break-words whitespace-normal"
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  title={proofUri} // 鼠标悬浮显示完整 URL
+                  style={{
+                    wordBreak: 'break-all',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'normal',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2, // 限制最多显示 2 行
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                  }}
+                >
+                  {proofUri}
+                </a>
+                {subGoal.submitted_at ? (
+                  <div className="text-xs text-slate-500 mt-1">Submitted: {unixToLocale(subGoal.submitted_at)}</div>
+                ) : null}
+              </div>
+            );
+          }
+          return null;
+        })()}
+
         {isTaker(goal) && ['pending', 'rejected'].includes(statusKey) && (
           <div className="flex flex-col gap-2 mt-2">
             <input
@@ -876,13 +924,19 @@ const GoalsView: FC = () => {
                       </span>
                     </div>
                   </div>
-                  {isIssuer(goal) && (
-                    <div className="text-right text-xs text-slate-400 bg-base-300/50 px-2 py-1 rounded">
-                      {t.info.issuer}
-                      <br />
-                      <span className="font-mono">{goal.account.issuer.toBase58().slice(0, 8)}…</span>
+                  <div className="text-right text-xs text-slate-400 bg-base-300/50 px-2 py-1 rounded">
+                    <div>{t.info.issuer}</div>
+                    <div>
+                      <a className="font-mono text-indigo-400" href={`https://solscan.io/account/${goal.account.issuer?.toBase58 ? goal.account.issuer.toBase58() : String(goal.account.issuer)}${solscanParam}`} target="_blank" rel="noreferrer">
+                        {goal.account.issuer.toBase58 ? goal.account.issuer.toBase58().slice(0, 8) + '…' : String(goal.account.issuer).slice(0, 8) + '…'}
+                      </a>
                     </div>
-                  )}
+                    {isIssuer(goal) && lastTxs[goalKey] && (
+                      <div className="mt-1">
+                        <a className="text-xs text-indigo-300" href={`https://solscan.io/tx/${lastTxs[goalKey]}${solscanParam}`} target="_blank" rel="noreferrer">View last tx</a>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => toggleGoalExpanded(goalKey)}
