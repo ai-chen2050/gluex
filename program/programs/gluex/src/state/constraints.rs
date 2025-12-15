@@ -1,4 +1,3 @@
-
 pub const MAXIUMUN_SUBGOALS: usize = 5;
 pub const MAXIUMUN_DESCRIPTIONS_LENS: usize = 512;
 pub const MAXIUMUN_SUBGOAL_AMOUNT: u64 = 2000;
@@ -28,3 +27,11 @@ pub const GOAL_ACCOUNT_SPACE: usize = 8 // anchor discriminator
     + GOAL_ACCOUNT_BASE_SIZE
     + (SUB_GOAL_SIZE * MAXIUMUN_SUBGOALS);
 
+// fee pool related constraints
+pub const MAX_MAINTAINERS: usize = 10;
+pub const FEE_POOL_SPACE: usize = 8 // anchor discriminator
+    + 32 // founder pubkey
+    + 4 // vec length prefix
+    + (32 * MAX_MAINTAINERS) // maintainers
+    + 16 // protocol fee numerator/denominator (u64 * 2)
+    + 1; // bump

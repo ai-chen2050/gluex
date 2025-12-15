@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FC } from 'react';
 import { useLanguage } from '../../contexts/LanguageProvider';
+import FeePoolPanel from '../../components/FeePoolPanel';
 
 const githubAvatar = 'https://avatars.githubusercontent.com/ai-chen2050';
 const githubProfile = 'https://ai-chen2050.github.io/';
@@ -170,7 +171,15 @@ export const AboutView: FC = () => {
 
       <section className="space-y-6 sm:space-y-8">
         <div className="space-y-2">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.incentiveHeading}</h2>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white flex items-center gap-3">
+            {t.incentiveHeading}
+            <span title={language === 'en' ? 'Protocol fee pool distribution' : '协议手续费池分配'} className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 2v10l4 2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M21 12a9 9 0 1 1-9-9" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </h2>
           <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
         </div>
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
@@ -200,6 +209,15 @@ export const AboutView: FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+        <div className="mt-6">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+            {language === 'en' ? 'Fee Pool' : '手续费池'}
+          </h2>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full mt-3"></div>
+          <div className="mt-4">
+            <FeePoolPanel />
           </div>
         </div>
       </section>

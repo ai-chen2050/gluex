@@ -73,4 +73,7 @@ pub enum GluXError {
     #[msg("Invalid subgoal format")]
     InvalidSubgoalFormat,
 
+    #[msg("Maximum number of maintainers reached")]
+    MaxMaintainersReached,
+
 }

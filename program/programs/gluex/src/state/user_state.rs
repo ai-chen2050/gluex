@@ -159,6 +159,22 @@ pub fn trim_fixed_string(bytes: &[u8]) -> String {
     String::from_utf8_lossy(&bytes[..len]).to_string()
 }
 
+#[account]
+#[derive(Debug, Default)]
+pub struct FeePool {
+    pub founder: Pubkey,
+    pub maintainers: Vec<Pubkey>,
+    pub protocol_fee_numerator: u64,
+    pub protocol_fee_denominator: u64,
+    pub bump: u8,
+}
+
+impl FeePool {
+    pub fn seeds() -> &'static [u8] {
+        b"gluex-fee-pool"
+    }
+}
+
 // Todo: needs another program to log user infos
 // #[account]
 // pub struct UserStats {

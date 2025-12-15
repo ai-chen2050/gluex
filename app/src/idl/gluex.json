@@ -8,6 +8,58 @@
   },
   "instructions": [
     {
+      "name": "add_maintainer",
+      "discriminator": [
+        58,
+        137,
+        30,
+        214,
+        212,
+        175,
+        183,
+        203
+      ],
+      "accounts": [
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  102,
+                  101,
+                  101,
+                  45,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "founder",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "maintainer",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
       "name": "claim_unused",
       "discriminator": [
         124,
@@ -58,6 +110,110 @@
           "name": "issuer",
           "writable": true,
           "signer": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_fee_pool",
+      "discriminator": [
+        181,
+        227,
+        61,
+        52,
+        198,
+        41,
+        25,
+        65
+      ],
+      "accounts": [
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  102,
+                  101,
+                  101,
+                  45,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "founder",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "distribute_fees",
+      "discriminator": [
+        120,
+        56,
+        27,
+        7,
+        53,
+        176,
+        113,
+        186
+      ],
+      "accounts": [
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  102,
+                  101,
+                  101,
+                  45,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "founder_dest",
+          "writable": true
         }
       ],
       "args": []
@@ -130,6 +286,62 @@
       ]
     },
     {
+      "name": "set_fee_params",
+      "discriminator": [
+        217,
+        73,
+        193,
+        227,
+        183,
+        14,
+        200,
+        188
+      ],
+      "accounts": [
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  102,
+                  101,
+                  101,
+                  45,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "founder",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "numerator",
+          "type": "u64"
+        },
+        {
+          "name": "denominator",
+          "type": "u64"
+        }
+      ]
+    },
+    {
       "name": "setup_goal",
       "discriminator": [
         171,
@@ -178,6 +390,11 @@
           "name": "payer",
           "writable": true,
           "signer": true
+        },
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "optional": true
         },
         {
           "name": "system_program",
@@ -373,6 +590,19 @@
   ],
   "accounts": [
     {
+      "name": "FeePool",
+      "discriminator": [
+        172,
+        38,
+        77,
+        146,
+        148,
+        5,
+        51,
+        242
+      ]
+    },
+    {
       "name": "TotalGoal",
       "discriminator": [
         72,
@@ -505,6 +735,11 @@
       "code": 6023,
       "name": "InvalidSubgoalFormat",
       "msg": "Invalid subgoal format"
+    },
+    {
+      "code": 6024,
+      "name": "MaxMaintainersReached",
+      "msg": "Maximum number of maintainers reached"
     }
   ],
   "types": [
@@ -521,6 +756,36 @@
           },
           {
             "name": "SurpriseTime"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeePool",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "founder",
+            "type": "pubkey"
+          },
+          {
+            "name": "maintainers",
+            "type": {
+              "vec": "pubkey"
+            }
+          },
+          {
+            "name": "protocol_fee_numerator",
+            "type": "u64"
+          },
+          {
+            "name": "protocol_fee_denominator",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }

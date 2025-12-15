@@ -353,6 +353,15 @@ const GoalsView: FC = () => {
       const lockedLamports = solToLamports(lockedAmount);
       const completionTime = new BN(toUnixSeconds(completionDate));
       const unlockTime = new BN(toUnixSeconds(unlockDate));
+      // detect optional fee_pool PDA on-chain; pass it if exists, otherwise pass null
+      const [feePoolPda] = PublicKey.findProgramAddressSync([Buffer.from('gluex-fee-pool')], program.programId);
+      const feePoolAcct = await program.provider.connection.getAccountInfo(feePoolPda);
+      const accounts: any = {
+        goals: goalsPda,
+        payer: wallet.publicKey,
+        systemProgram: SystemProgram.programId,
+      };
+      accounts.feePool = feePoolAcct ? feePoolPda : null;
 
       const sig = await program.methods
         .setupGoal(
@@ -368,11 +377,7 @@ const GoalsView: FC = () => {
           unlockTime,
           goalConfig(),
         )
-        .accounts({
-          goals: goalsPda,
-          payer: wallet.publicKey,
-          systemProgram: SystemProgram.programId,
-        })
+        .accounts(accounts)
         .rpc();
 
       // record tx signature for the newly created goal PDA

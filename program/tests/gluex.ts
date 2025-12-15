@@ -35,14 +35,14 @@ describe("gluex", () => {
       {
         title: "Prototype milestone",
         deadline: new BN(now + 3600),
-        incentive_amount: new BN(totalAmount / 2),
-        auto_release_at: new BN(0),
+        incentiveAmount: new BN(Math.floor(totalAmount / 2)),
+        autoReleaseAt: new BN(0),
       },
       {
         title: "Launch milestone",
         deadline: new BN(now + 7200),
-        incentive_amount: new BN(totalAmount / 2),
-        auto_release_at: new BN(0),
+        incentiveAmount: new BN(Math.floor(totalAmount / 2)),
+        autoReleaseAt: new BN(0),
       },
     ];
 
@@ -72,6 +72,7 @@ describe("gluex", () => {
       .accounts({
         goals: goalsPda,
         payer: program.provider.publicKey,
+        feePool: null,
         systemProgram: web3.SystemProgram.programId,
       })
       .rpc();
@@ -83,7 +84,7 @@ describe("gluex", () => {
 
     const goalAccount = await program.account.totalGoal.fetch(goalsPda);
     console.log("Goal Account:", goalAccount);
-    
+
     expect(goalAccount.issuer.equals(program.provider.publicKey)).to.be.true;
     expect(goalAccount.taker.equals(taker.publicKey)).to.be.true;
     expect(goalAccount.activeSubGoals).to.eq(2);

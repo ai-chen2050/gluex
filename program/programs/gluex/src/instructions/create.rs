@@ -49,7 +49,24 @@ pub fn setup_goal(
     new_goals.sub_goals = normalized_sub_goals;
     new_goals.active_sub_goals = active_sub_goals;
     new_goals.total_incentive_amount = total_incentive_amount;
-    new_goals.deposited_amount = total_incentive_amount;
+    // calculate fee using global FeePool params if provided
+    let mut fee: u64 = 0;
+    if let Some(fee_pool_acct) = ctx.accounts.fee_pool.as_ref() {
+        // if fee pool exists, read params
+        let num = fee_pool_acct.protocol_fee_numerator;
+        let den = fee_pool_acct.protocol_fee_denominator;
+        if den > 0 && num > 0 {
+            let calc = (total_incentive_amount as u128)
+                .checked_mul(num as u128)
+                .ok_or(GluXError::PayerAccountInsufficient)?
+                .checked_div(den as u128)
+                .ok_or(GluXError::PayerAccountInsufficient)?;
+            fee = calc as u64;
+        }
+    }
+
+    let deposited = total_incentive_amount.saturating_sub(fee);
+    new_goals.deposited_amount = deposited;
     new_goals.released_amount = 0;
     new_goals.completion_time = completion_time;
     new_goals.locked_amount = locked_amount;
@@ -61,20 +78,40 @@ pub fn setup_goal(
     new_goals.failed = false;
     new_goals.bump = ctx.bumps.goals;  
 
-    let transfer_ix = system_instruction::transfer(
-        &ctx.accounts.payer.key(),
-        &new_goals.key(),
-        total_incentive_amount,
-    );
+    // transfer fee (if any) to fee pool, then deposit remaining to goal account
+    if fee > 0 {
+        if let Some(fee_pool_acct) = ctx.accounts.fee_pool.as_ref() {
+            let transfer_fee_ix = system_instruction::transfer(
+                &ctx.accounts.payer.key(),
+                &fee_pool_acct.key(),
+                fee,
+            );
+            invoke(
+                &transfer_fee_ix,
+                &[
+                    ctx.accounts.payer.to_account_info(),
+                    fee_pool_acct.to_account_info(),
+                    ctx.accounts.system_program.to_account_info(),
+                ],
+            )?;
+        }
+    }
 
-    invoke(
-        &transfer_ix,
-        &[
-            ctx.accounts.payer.to_account_info(),
-            new_goals.to_account_info(),
-            ctx.accounts.system_program.to_account_info(),
-        ],
-    )?;
+    if deposited > 0 {
+        let transfer_ix = system_instruction::transfer(
+            &ctx.accounts.payer.key(),
+            &new_goals.key(),
+            deposited,
+        );
+        invoke(
+            &transfer_ix,
+            &[
+                ctx.accounts.payer.to_account_info(),
+                new_goals.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+            ],
+        )?;
+    }
     
     Ok(())
 }
@@ -90,6 +127,10 @@ pub struct SetupGoal<'info> {
 
     #[account(mut)]
     pub payer: Signer<'info>,
+
+    // optional fee pool: if present, fees are collected according to its params
+    #[account(mut)]
+    pub fee_pool: Option<Account<'info, FeePool>>,
 
     pub system_program: Program<'info, System>,
 }

@@ -42,6 +42,22 @@ pub mod gluex {
         )
     }
 
+    pub fn create_fee_pool(ctx: Context<CreateFeePool>, founder: Pubkey) -> Result<()> {
+        instructions::fee::create_fee_pool(ctx, founder)
+    }
+
+    pub fn add_maintainer(ctx: Context<AddMaintainer>, maintainer: Pubkey) -> Result<()> {
+        instructions::fee::add_maintainer(ctx, maintainer)
+    }
+
+    pub fn distribute_fees(ctx: Context<DistributeFees>) -> Result<()> {
+        instructions::fee::distribute_fees(ctx)
+    }
+
+    pub fn set_fee_params(ctx: Context<SetFeeParams>, numerator: u64, denominator: u64) -> Result<()> {
+        instructions::fee::set_fee_params(ctx, numerator, denominator)
+    }
+
     pub fn submit_proof(
         ctx: Context<SubmitProof>,
         subgoal_index: u8,
