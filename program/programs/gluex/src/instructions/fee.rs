@@ -1,5 +1,6 @@
 use crate::state::*;
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::clock::Clock;
 
 pub fn create_fee_pool(ctx: Context<CreateFeePool>, founder: Pubkey) -> Result<()> {
     let pool = &mut ctx.accounts.fee_pool;
@@ -111,6 +112,17 @@ pub fn set_fee_params(ctx: Context<SetFeeParams>, numerator: u64, denominator: u
     Ok(())
 }
 
+pub fn add_donation(ctx: Context<AddDonation>, amount: u64, currency: String) -> Result<()> {
+    let pool = &mut ctx.accounts.fee_pool;
+    require!(pool.donations.len() < MAX_DONATIONS, GluXError::MaxDonationsReached);
+    let ts = Clock::get()?.unix_timestamp;
+    let donor = ctx.accounts.donor.key();
+    let currency_fixed = string_to_fixed::<8>(&currency);
+    let entry = DonationEntry::from_parts(donor, amount, ts, currency_fixed);
+    pool.donations.push(entry);
+    Ok(())
+}
+
 #[derive(Accounts)]
 #[instruction(founder: Pubkey)]
 pub struct CreateFeePool<'info> {
@@ -143,4 +155,12 @@ pub struct SetFeeParams<'info> {
     #[account(mut, seeds = [b"gluex-fee-pool"], bump = fee_pool.bump)]
     pub fee_pool: Account<'info, FeePool>,
     pub founder: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct AddDonation<'info> {
+    #[account(mut, seeds = [b"gluex-fee-pool"], bump = fee_pool.bump)]
+    pub fee_pool: Account<'info, FeePool>,
+    #[account(mut)]
+    pub donor: Signer<'info>,
 }

@@ -12,14 +12,16 @@ pub enum GluXError {
 
     #[msg("Room type is not supported")]
     RoomNotSupport,
-    
+
     #[msg("EventType type is not supported")]
     EventTypeNotSupport,
 
     #[msg("SubGoal number too many,maximum is five target")]
     SubGoalNumExceed,
 
-    #[msg("Payer account amount insufficient,account amount must bigger than total_incentive_amount")]
+    #[msg(
+        "Payer account amount insufficient,account amount must bigger than total_incentive_amount"
+    )]
     PayerAccountInsufficient,
 
     #[msg("Locked amount must smaller than total_incentive_amount")]
@@ -75,5 +77,6 @@ pub enum GluXError {
 
     #[msg("Maximum number of maintainers reached")]
     MaxMaintainersReached,
-
+    #[msg("Maximum number of donations reached")]
+    MaxDonationsReached,
 }

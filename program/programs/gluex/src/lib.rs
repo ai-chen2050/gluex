@@ -46,6 +46,10 @@ pub mod gluex {
         instructions::fee::create_fee_pool(ctx, founder)
     }
 
+    pub fn add_donation(ctx: Context<AddDonation>, amount: u64, currency: String) -> Result<()> {
+        instructions::fee::add_donation(ctx, amount, currency)
+    }
+
     pub fn add_maintainer(ctx: Context<AddMaintainer>, maintainer: Pubkey) -> Result<()> {
         instructions::fee::add_maintainer(ctx, maintainer)
     }

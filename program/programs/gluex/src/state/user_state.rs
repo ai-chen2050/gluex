@@ -166,7 +166,27 @@ pub struct FeePool {
     pub maintainers: Vec<Pubkey>,
     pub protocol_fee_numerator: u64,
     pub protocol_fee_denominator: u64,
+    pub donations: Vec<DonationEntry>,
     pub bump: u8,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, Default)]
+pub struct DonationEntry {
+    pub donor: Pubkey,
+    pub amount: u64,
+    pub ts: i64,
+    pub currency: [u8; 8],
+}
+
+impl DonationEntry {
+    pub fn from_parts(donor: Pubkey, amount: u64, ts: i64, currency: [u8; 8]) -> Self {
+        DonationEntry {
+            donor,
+            amount,
+            ts,
+            currency,
+        }
+    }
 }
 
 impl FeePool {

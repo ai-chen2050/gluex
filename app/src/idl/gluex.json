@@ -8,6 +8,63 @@
   },
   "instructions": [
     {
+      "name": "add_donation",
+      "discriminator": [
+        95,
+        40,
+        48,
+        151,
+        28,
+        22,
+        60,
+        126
+      ],
+      "accounts": [
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  103,
+                  108,
+                  117,
+                  101,
+                  120,
+                  45,
+                  102,
+                  101,
+                  101,
+                  45,
+                  112,
+                  111,
+                  111,
+                  108
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "donor",
+          "writable": true,
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "currency",
+          "type": "string"
+        }
+      ]
+    },
+    {
       "name": "add_maintainer",
       "discriminator": [
         58,
@@ -740,9 +797,43 @@
       "code": 6024,
       "name": "MaxMaintainersReached",
       "msg": "Maximum number of maintainers reached"
+    },
+    {
+      "code": 6025,
+      "name": "MaxDonationsReached",
+      "msg": "Maximum number of donations reached"
     }
   ],
   "types": [
+    {
+      "name": "DonationEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "donor",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "ts",
+            "type": "i64"
+          },
+          {
+            "name": "currency",
+            "type": {
+              "array": [
+                "u8",
+                8
+              ]
+            }
+          }
+        ]
+      }
+    },
     {
       "name": "EventType",
       "type": {
@@ -782,6 +873,16 @@
           {
             "name": "protocol_fee_denominator",
             "type": "u64"
+          },
+          {
+            "name": "donations",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "DonationEntry"
+                }
+              }
+            }
           },
           {
             "name": "bump",
