@@ -29,9 +29,18 @@ pub const GOAL_ACCOUNT_SPACE: usize = 8 // anchor discriminator
 
 // fee pool related constraints
 pub const MAX_MAINTAINERS: usize = 10;
+pub const MAX_DONATIONS: usize = 500;
+
+pub const DONATION_ENTRY_SIZE: usize = 32 // donor pubkey
+    + 8 // amount
+    + 8 // timestamp
+    + 8; // currency fixed 8 bytes
+
 pub const FEE_POOL_SPACE: usize = 8 // anchor discriminator
     + 32 // founder pubkey
     + 4 // vec length prefix
     + (32 * MAX_MAINTAINERS) // maintainers
     + 16 // protocol fee numerator/denominator (u64 * 2)
-    + 1; // bump
+    + 1 // bump
+    + 4 // donations vec length prefix
+    + (DONATION_ENTRY_SIZE * MAX_DONATIONS); // donations fixed capacity

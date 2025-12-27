@@ -1,5 +1,7 @@
 use crate::state::*;
 use anchor_lang::prelude::*;
+use anchor_lang::solana_program::clock::Clock;
+use solana_program::hash::hash;
 
 pub fn create_fee_pool(ctx: Context<CreateFeePool>, founder: Pubkey) -> Result<()> {
     let pool = &mut ctx.accounts.fee_pool;
@@ -14,8 +16,15 @@ pub fn create_fee_pool(ctx: Context<CreateFeePool>, founder: Pubkey) -> Result<(
 
 pub fn add_maintainer(ctx: Context<AddMaintainer>, maintainer: Pubkey) -> Result<()> {
     let pool = &mut ctx.accounts.fee_pool;
-    require_keys_eq!(pool.founder, ctx.accounts.founder.key(), GluXError::UnauthorizedSigner);
-    require!(pool.maintainers.len() < MAX_MAINTAINERS, GluXError::MaxMaintainersReached);
+    require_keys_eq!(
+        pool.founder,
+        ctx.accounts.founder.key(),
+        GluXError::UnauthorizedSigner
+    );
+    require!(
+        pool.maintainers.len() < MAX_MAINTAINERS,
+        GluXError::MaxMaintainersReached
+    );
 
     if !pool.maintainers.iter().any(|k| k == &maintainer) {
         pool.maintainers.push(maintainer);
@@ -85,7 +94,9 @@ pub fn distribute_fees(ctx: Context<DistributeFees>) -> Result<()> {
         .ok_or(GluXError::NoFundsAvailable)?;
 
     // founder dest
-    **ctx.accounts.founder_dest.try_borrow_mut_lamports()? = ctx.accounts.founder_dest
+    **ctx.accounts.founder_dest.try_borrow_mut_lamports()? = ctx
+        .accounts
+        .founder_dest
         .lamports()
         .checked_add(founder_share + remainder)
         .ok_or(GluXError::NoFundsAvailable)?;
@@ -104,10 +115,28 @@ pub fn distribute_fees(ctx: Context<DistributeFees>) -> Result<()> {
 
 pub fn set_fee_params(ctx: Context<SetFeeParams>, numerator: u64, denominator: u64) -> Result<()> {
     let pool = &mut ctx.accounts.fee_pool;
-    require_keys_eq!(pool.founder, ctx.accounts.founder.key(), GluXError::UnauthorizedSigner);
+    require_keys_eq!(
+        pool.founder,
+        ctx.accounts.founder.key(),
+        GluXError::UnauthorizedSigner
+    );
     require!(denominator > 0, GluXError::HabitConfigInvalid);
     pool.protocol_fee_numerator = numerator;
     pool.protocol_fee_denominator = denominator;
+    Ok(())
+}
+
+pub fn add_donation(ctx: Context<AddDonation>, amount: u64, currency: String) -> Result<()> {
+    let pool = &mut ctx.accounts.fee_pool;
+    require!(
+        pool.donations.len() < MAX_DONATIONS,
+        GluXError::MaxDonationsReached
+    );
+    let ts = Clock::get()?.unix_timestamp;
+    let donor = ctx.accounts.donor.key();
+    let currency_fixed = string_to_fixed::<8>(&currency);
+    let entry = DonationEntry::from_parts(donor, amount, ts, currency_fixed);
+    pool.donations.push(entry);
     Ok(())
 }
 
@@ -143,4 +172,80 @@ pub struct SetFeeParams<'info> {
     #[account(mut, seeds = [b"gluex-fee-pool"], bump = fee_pool.bump)]
     pub fee_pool: Account<'info, FeePool>,
     pub founder: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct AddDonation<'info> {
+    #[account(mut, seeds = [b"gluex-fee-pool"], bump = fee_pool.bump)]
+    pub fee_pool: Account<'info, FeePool>,
+    #[account(mut)]
+    pub donor: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct MigrateFeePool<'info> {
+    /// The existing fee pool account (PDA) to overwrite. Must be owned by this program.
+    /// CHECK: This is left as `AccountInfo` because we intentionally avoid Anchor
+    /// deserialization when migrating raw account bytes. We manually verify the
+    /// account owner and write serialized bytes into its data buffer.
+    #[account(mut)]
+    pub fee_pool: AccountInfo<'info>,
+    /// Caller who initiates the migration; will be set as `founder` in the new layout.
+    #[account(signer)]
+    pub initiator: Signer<'info>,
+}
+
+pub fn migrate_fee_pool(ctx: Context<MigrateFeePool>, bump: u8) -> Result<()> {
+    let fee_pool_info = &ctx.accounts.fee_pool;
+
+    // Ensure account is owned by this program
+    if fee_pool_info.owner != ctx.program_id {
+        return err!(GluXError::UnauthorizedSigner);
+    }
+
+    // Validate provided bump off-chain by deriving the PDA and comparing
+    // it to the supplied account key. This avoids expensive on-chain brute-force.
+    let bump_seed = [bump];
+    let expected = Pubkey::create_program_address(&[b"gluex-fee-pool", &bump_seed], ctx.program_id)
+        .map_err(|_| error!(GluXError::ParsePubkeyError))?;
+    if expected != *fee_pool_info.key {
+        return err!(GluXError::ParsePubkeyError);
+    }
+
+    let new_pool = FeePool {
+        founder: *ctx.accounts.initiator.key,
+        maintainers: vec![],
+        protocol_fee_numerator: 0,
+        protocol_fee_denominator: 1000,
+        donations: vec![],
+        version: 1,
+        bump,
+    };
+
+    // Serialize to bytes
+    let data = new_pool.try_to_vec().map_err(|_| error!(GluXError::None))?;
+
+    // Prepend Anchor account discriminator (first 8 bytes of sha256("account:FeePool"))
+    let disc_bytes = hash(b"account:FeePool").to_bytes();
+    let disc = &disc_bytes[..8];
+
+    // Combined output = discriminator + serialized struct
+    let mut out: Vec<u8> = Vec::with_capacity(disc.len() + data.len());
+    out.extend_from_slice(disc);
+    out.extend_from_slice(&data);
+
+    // Ensure target account has sufficient data length
+    let acct_len = fee_pool_info.try_borrow_data()?.len();
+    if out.len() > acct_len {
+        return err!(GluXError::NoFundsAvailable);
+    }
+
+    // Write discriminator+serialized bytes into account data, zero remaining bytes
+    let mut acct_data = fee_pool_info.try_borrow_mut_data()?;
+    acct_data[..out.len()].copy_from_slice(&out);
+    for i in out.len()..acct_len {
+        acct_data[i] = 0;
+    }
+
+    Ok(())
 }

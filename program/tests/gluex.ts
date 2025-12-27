@@ -19,16 +19,17 @@ describe("gluex", () => {
     );
     await program.provider.connection.confirmTransaction(airdropSig);
 
+    const now = Math.floor(Date.now() / 1000);
+    const goalIdBn = new BN(now);
     const [goalsPda] = web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from("gluex-goals"),
         program.provider.publicKey.toBuffer(),
         taker.publicKey.toBuffer(),
+        Buffer.from(goalIdBn.toArray("le", 8)),
       ],
       program.programId
     );
-
-    const now = Math.floor(Date.now() / 1000);
     const totalAmount = web3.LAMPORTS_PER_SOL;
 
     const subGoals = [
@@ -58,6 +59,7 @@ describe("gluex", () => {
     const txHash = await program.methods
       .setupGoal(
         taker.publicKey,
+        new BN(now),
         "GlueX integration test goal",
         { loveGame: {} },
         { partner: {} },

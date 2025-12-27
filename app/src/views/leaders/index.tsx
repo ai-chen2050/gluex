@@ -69,7 +69,8 @@ export const LeadersView: FC = () => {
     if (!program) return;
     setLoading(true);
     try {
-      const list = await program.account['totalGoal'].all();
+      const { fetchAllTotalGoals } = await import('../../utils/totalGoalFetcher');
+      const list = await fetchAllTotalGoals(program as any);
       setItems(list);
     } catch (err) {
       console.error(err);
@@ -255,11 +256,19 @@ export const LeadersView: FC = () => {
   };
 
   const LineChart: FC<{ data: number[]; width?: number; height?: number }> = ({ data, width = 400, height = 100 }) => {
+    // Use a logical width for point calculations but render the SVG responsively
+    const logicalWidth = width || 400;
     const max = Math.max(...data, 1);
-    const step = width / (data.length - 1 || 1);
+    const step = logicalWidth / (data.length - 1 || 1);
     const points = data.map((v, i) => `${i * step},${height - (v / max) * height}`).join(' ');
     return (
-      <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="rounded drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]">
+      <svg
+        width="100%"
+        height={height}
+        viewBox={`0 0 ${logicalWidth} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="rounded drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)] w-full h-auto"
+      >
         <polyline fill="none" stroke="#7c3aed" strokeWidth={2} points={points} strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );

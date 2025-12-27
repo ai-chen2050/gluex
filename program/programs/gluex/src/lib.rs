@@ -15,6 +15,7 @@ pub mod gluex {
     pub fn setup_goal(
         ctx: Context<SetupGoal>,
         taker: Pubkey,
+        goal_id: i64,
         description: String,
         room: Roomspace,
         relations: Relations,
@@ -29,6 +30,7 @@ pub mod gluex {
         instructions::create::setup_goal(
             ctx,
             taker,
+            goal_id,
             description,
             room,
             relations,
@@ -46,6 +48,10 @@ pub mod gluex {
         instructions::fee::create_fee_pool(ctx, founder)
     }
 
+    pub fn add_donation(ctx: Context<AddDonation>, amount: u64, currency: String) -> Result<()> {
+        instructions::fee::add_donation(ctx, amount, currency)
+    }
+
     pub fn add_maintainer(ctx: Context<AddMaintainer>, maintainer: Pubkey) -> Result<()> {
         instructions::fee::add_maintainer(ctx, maintainer)
     }
@@ -54,8 +60,26 @@ pub mod gluex {
         instructions::fee::distribute_fees(ctx)
     }
 
-    pub fn set_fee_params(ctx: Context<SetFeeParams>, numerator: u64, denominator: u64) -> Result<()> {
+    pub fn set_fee_params(
+        ctx: Context<SetFeeParams>,
+        numerator: u64,
+        denominator: u64,
+    ) -> Result<()> {
         instructions::fee::set_fee_params(ctx, numerator, denominator)
+    }
+
+    pub fn migrate_fee_pool(ctx: Context<MigrateFeePool>, bump: u8) -> Result<()> {
+        instructions::fee::migrate_fee_pool(ctx, bump)
+    }
+
+    pub fn migrate_total_goal(
+        ctx: Context<MigrateTotalGoal>,
+        issuer: Pubkey,
+        taker: Pubkey,
+        goal_id: i64,
+        bump: u8,
+    ) -> Result<()> {
+        instructions::create::migrate_total_goal(ctx, issuer, taker, goal_id, bump)
     }
 
     pub fn submit_proof(

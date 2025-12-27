@@ -159,11 +159,6 @@
                 "kind": "account",
                 "path": "goals.taker",
                 "account": "TotalGoal"
-              },
-              {
-                "kind": "account",
-                "path": "goals.id",
-                "account": "TotalGoal"
               }
             ]
           }
@@ -281,87 +276,6 @@
       "args": []
     },
     {
-      "name": "migrate_fee_pool",
-      "discriminator": [
-        200,
-        100,
-        88,
-        235,
-        32,
-        248,
-        187,
-        210
-      ],
-      "accounts": [
-        {
-          "name": "fee_pool",
-          "docs": [
-            "The existing fee pool account (PDA) to overwrite. Must be owned by this program.",
-            "deserialization when migrating raw account bytes. We manually verify the",
-            "account owner and write serialized bytes into its data buffer."
-          ],
-          "writable": true
-        },
-        {
-          "name": "initiator",
-          "docs": [
-            "Caller who initiates the migration; will be set as `founder` in the new layout."
-          ],
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "bump",
-          "type": "u8"
-        }
-      ]
-    },
-    {
-      "name": "migrate_total_goal",
-      "discriminator": [
-        247,
-        191,
-        176,
-        56,
-        105,
-        5,
-        245,
-        189
-      ],
-      "accounts": [
-        {
-          "name": "goals",
-          "docs": [
-            "The existing goals account (PDA) to overwrite. Must be owned by this program."
-          ],
-          "writable": true
-        },
-        {
-          "name": "initiator",
-          "signer": true
-        }
-      ],
-      "args": [
-        {
-          "name": "issuer",
-          "type": "pubkey"
-        },
-        {
-          "name": "taker",
-          "type": "pubkey"
-        },
-        {
-          "name": "goal_id",
-          "type": "i64"
-        },
-        {
-          "name": "bump",
-          "type": "u8"
-        }
-      ]
-    },
-    {
       "name": "review_subgoal",
       "discriminator": [
         221,
@@ -403,11 +317,6 @@
               {
                 "kind": "account",
                 "path": "goals.taker",
-                "account": "TotalGoal"
-              },
-              {
-                "kind": "account",
-                "path": "goals.id",
                 "account": "TotalGoal"
               }
             ]
@@ -530,10 +439,6 @@
               {
                 "kind": "arg",
                 "path": "taker"
-              },
-              {
-                "kind": "arg",
-                "path": "goal_id"
               }
             ]
           }
@@ -557,10 +462,6 @@
         {
           "name": "taker",
           "type": "pubkey"
-        },
-        {
-          "name": "goal_id",
-          "type": "i64"
         },
         {
           "name": "description",
@@ -669,11 +570,6 @@
                 "kind": "account",
                 "path": "goals.taker",
                 "account": "TotalGoal"
-              },
-              {
-                "kind": "account",
-                "path": "goals.id",
-                "account": "TotalGoal"
               }
             ]
           }
@@ -736,11 +632,6 @@
               {
                 "kind": "account",
                 "path": "goals.taker",
-                "account": "TotalGoal"
-              },
-              {
-                "kind": "account",
-                "path": "goals.id",
                 "account": "TotalGoal"
               }
             ]
@@ -994,10 +885,6 @@
             }
           },
           {
-            "name": "version",
-            "type": "u8"
-          },
-          {
             "name": "bump",
             "type": "u8"
           }
@@ -1180,10 +1067,6 @@
             "type": "pubkey"
           },
           {
-            "name": "id",
-            "type": "i64"
-          },
-          {
             "name": "description",
             "type": "string"
           },
@@ -1271,10 +1154,6 @@
           {
             "name": "failed",
             "type": "bool"
-          },
-          {
-            "name": "version",
-            "type": "u8"
           },
           {
             "name": "bump",

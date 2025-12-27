@@ -10,8 +10,8 @@ export const ContentContainer: React.FC<Props> = ({ children }) => {
   const { language } = useLanguage();
   const navCopy =
     language === 'zh'
-      ? { home: '首页', goals: '目标', tools: '工具', about: '关于', leaders: '排行榜' }
-      : { home: 'Home', goals: 'Goals', tools: 'Tools', about: 'About', leaders: 'Leader' };
+      ? { home: '首页', goals: '目标', fund: '捐赠', about: '关于', leaders: '排行榜' }
+      : { home: 'Home', goals: 'Goals', fund: 'Funding', about: 'About', leaders: 'Leader' };
 
   return (
     <div className="flex-1 drawer h-52">
@@ -41,8 +41,8 @@ export const ContentContainer: React.FC<Props> = ({ children }) => {
           </li>
           <li>
           <NavElement
-            label={navCopy.tools}
-            href="/tools"
+            label={navCopy.fund}
+            href="/fund"
           />
           </li>
           <li>

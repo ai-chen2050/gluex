@@ -116,6 +116,7 @@ impl SubGoal {
 pub struct TotalGoal {
     pub issuer: Pubkey, // 8 + (32 * 2) + des.len() + 3 + (40 * 3) + (8 * 4) + 1
     pub taker: Pubkey,
+    pub id: i64,
     pub description: String, // capped via MAX_DESCRIPTION_BYTES
     pub room: Roomspace,
     pub relations: Relations,
@@ -133,16 +134,13 @@ pub struct TotalGoal {
     pub checkpoint_interval: i64,
     pub completed_count: u8,
     pub failed: bool,
+    pub version: u8,
     pub bump: u8,
 }
 
 impl TotalGoal {
     pub fn description_capacity() -> usize {
         MAX_DESCRIPTION_BYTES
-    }
-
-    pub fn goal_seeds(&self) -> [&[u8]; 3] {
-        [b"gluex-goals", self.issuer.as_ref(), self.taker.as_ref()]
     }
 }
 
@@ -166,7 +164,28 @@ pub struct FeePool {
     pub maintainers: Vec<Pubkey>,
     pub protocol_fee_numerator: u64,
     pub protocol_fee_denominator: u64,
+    pub donations: Vec<DonationEntry>,
+    pub version: u8,
     pub bump: u8,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, Default)]
+pub struct DonationEntry {
+    pub donor: Pubkey,
+    pub amount: u64,
+    pub ts: i64,
+    pub currency: [u8; 8],
+}
+
+impl DonationEntry {
+    pub fn from_parts(donor: Pubkey, amount: u64, ts: i64, currency: [u8; 8]) -> Self {
+        DonationEntry {
+            donor,
+            amount,
+            ts,
+            currency,
+        }
+    }
 }
 
 impl FeePool {

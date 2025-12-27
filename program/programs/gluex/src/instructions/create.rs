@@ -1,17 +1,19 @@
 use crate::state::*;
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::{program::invoke, system_instruction};
+use solana_program::hash::hash;
 
 pub fn setup_goal(
     ctx: Context<SetupGoal>,
     taker: Pubkey,
+    goal_id: i64,
     description: String,
     room: Roomspace,
     relations: Relations,
     eventype: EventType,
-    sub_goals: Vec<SubGoalInput>, 
+    sub_goals: Vec<SubGoalInput>,
     total_incentive_amount: u64,
-    completion_time: i64, 
+    completion_time: i64,
     locked_amount: u64,
     unlock_time: i64,
     config: GoalConfigInput,
@@ -42,6 +44,7 @@ pub fn setup_goal(
     let new_goals = &mut ctx.accounts.goals;
     new_goals.issuer = ctx.accounts.payer.key();
     new_goals.taker = taker;
+    new_goals.id = goal_id;
     new_goals.description = description;
     new_goals.room = room;
     new_goals.relations = relations;
@@ -76,7 +79,7 @@ pub fn setup_goal(
     new_goals.checkpoint_interval = checkpoint_interval;
     new_goals.completed_count = 0;
     new_goals.failed = false;
-    new_goals.bump = ctx.bumps.goals;  
+    new_goals.bump = ctx.bumps.goals;
 
     // transfer fee (if any) to fee pool, then deposit remaining to goal account
     if fee > 0 {
@@ -112,16 +115,16 @@ pub fn setup_goal(
             ],
         )?;
     }
-    
+
     Ok(())
 }
 
 #[derive(Accounts)]
-#[instruction(taker: Pubkey)]
+#[instruction(taker: Pubkey, goal_id: i64)]
 pub struct SetupGoal<'info> {
     #[account(
         init, payer = payer, space = GOAL_ACCOUNT_SPACE, 
-        seeds = [b"gluex-goals", payer.key().as_ref(), taker.as_ref()], bump
+        seeds = [b"gluex-goals", payer.key().as_ref(), taker.as_ref(), goal_id.to_le_bytes().as_ref()], bump
     )]
     pub goals: Account<'info, TotalGoal>,
 
@@ -133,6 +136,97 @@ pub struct SetupGoal<'info> {
     pub fee_pool: Option<Account<'info, FeePool>>,
 
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct MigrateTotalGoal<'info> {
+    /// The existing goals account (PDA) to overwrite. Must be owned by this program.
+    /// CHECK: left as AccountInfo because we write raw bytes into it during migration.
+    #[account(mut)]
+    pub goals: AccountInfo<'info>,
+    #[account(signer)]
+    pub initiator: Signer<'info>,
+}
+
+pub fn migrate_total_goal(
+    ctx: Context<MigrateTotalGoal>,
+    issuer: Pubkey,
+    taker: Pubkey,
+    goal_id: i64,
+    bump: u8,
+) -> Result<()> {
+    let acct_info = &ctx.accounts.goals;
+
+    // Ensure account is owned by this program
+    if acct_info.owner != ctx.program_id {
+        return err!(GluXError::UnauthorizedSigner);
+    }
+
+    // Validate provided bump and seeds derive to the provided account
+    let id_bytes = goal_id.to_le_bytes();
+    let bump_seed = [bump];
+    let expected = Pubkey::create_program_address(
+        &[b"gluex-goals", issuer.as_ref(), taker.as_ref(), &id_bytes, &bump_seed],
+        ctx.program_id,
+    )
+    .map_err(|_| error!(GluXError::ParsePubkeyError))?;
+
+    if expected != *acct_info.key {
+        return err!(GluXError::ParsePubkeyError);
+    }
+
+    // Build a fresh default TotalGoal and write it into the account (preserve lamports)
+    let new_goal = TotalGoal {
+        issuer,
+        taker,
+        id: goal_id,
+        description: String::new(),
+        room: Roomspace::default(),
+        relations: Relations::default(),
+        eventype: EventType::default(),
+        sub_goals: [SubGoal::default(); MAXIUMUN_SUBGOALS],
+        active_sub_goals: 0,
+        total_incentive_amount: 0,
+        deposited_amount: 0,
+        released_amount: 0,
+        completion_time: 0,
+        locked_amount: 0,
+        unlock_time: 0,
+        start_time: 0,
+        surprise_trigger_ts: 0,
+        checkpoint_interval: 0,
+        completed_count: 0,
+        failed: false,
+        version: 1,
+        bump,
+    };
+
+    // Serialize to bytes
+    let data = new_goal.try_to_vec().map_err(|_| error!(GluXError::None))?;
+
+    // Prepend Anchor account discriminator (first 8 bytes of sha256("account:TotalGoal"))
+    let disc_bytes = hash(b"account:TotalGoal").to_bytes();
+    let disc = &disc_bytes[..8];
+
+    // Combined output = discriminator + serialized struct
+    let mut out: Vec<u8> = Vec::with_capacity(disc.len() + data.len());
+    out.extend_from_slice(disc);
+    out.extend_from_slice(&data);
+
+    // Ensure target account has sufficient data length
+    let acct_len = acct_info.try_borrow_data()?.len();
+    if out.len() > acct_len {
+        return err!(GluXError::NoFundsAvailable);
+    }
+
+    // Write discriminator+serialized bytes into account data, zero remaining bytes
+    let mut acct_data = acct_info.try_borrow_mut_data()?;
+    acct_data[..out.len()].copy_from_slice(&out);
+    for i in out.len()..acct_len {
+        acct_data[i] = 0;
+    }
+
+    Ok(())
 }
 
 fn prepare_sub_goals(

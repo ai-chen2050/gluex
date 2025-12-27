@@ -220,7 +220,14 @@ const GoalsView: FC = () => {
   const [eventType, setEventType] = useState(EVENT_DEFS[1].value);
   const [totalIncentive, setTotalIncentive] = useState(1);
   const [lockedAmount, setLockedAmount] = useState(0.1);
-  const [startDate, setStartDate] = useState('');
+  const localDatetimeNow = (() => {
+    const d = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
+      d.getHours(),
+    )}:${pad(d.getMinutes())}`;
+  })();
+  const [startDate, setStartDate] = useState(localDatetimeNow);
   const [completionDate, setCompletionDate] = useState('');
   const [unlockDate, setUnlockDate] = useState('');
   const [surpriseDate, setSurpriseDate] = useState('');
@@ -252,12 +259,12 @@ const GoalsView: FC = () => {
   const refreshGoals = useCallback(async () => {
     if (!program || !wallet.publicKey) return;
     try {
-      const items = await program.account['totalGoal'].all();
+      const { fetchAllTotalGoals } = await import('../../utils/totalGoalFetcher');
+      const items = await fetchAllTotalGoals(program as any);
       setGoals(
-        items.filter(
-          (item) =>
-            (item.account.issuer as unknown as PublicKey).equals(wallet.publicKey) ||
-            (item.account.taker as unknown as PublicKey).equals(wallet.publicKey),
+        items.filter((item: any) =>
+          (item.account.issuer as unknown as PublicKey).equals(wallet.publicKey) ||
+          (item.account.taker as unknown as PublicKey).equals(wallet.publicKey),
         ),
       );
     } catch (error) {
@@ -344,8 +351,15 @@ const GoalsView: FC = () => {
 
     setLoading(true);
     try {
+      const goalId = Math.floor(Date.now() / 1000);
+      const goalIdBn = new BN(goalId);
       const [goalsPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from('gluex-goals'), wallet.publicKey.toBuffer(), taker.toBuffer()],
+        [
+          Buffer.from('gluex-goals'),
+          wallet.publicKey.toBuffer(),
+          taker.toBuffer(),
+          Buffer.from(goalIdBn.toArray('le', 8)),
+        ],
         program.programId,
       );
 
@@ -353,6 +367,30 @@ const GoalsView: FC = () => {
       const lockedLamports = solToLamports(lockedAmount);
       const completionTime = new BN(toUnixSeconds(completionDate));
       const unlockTime = new BN(toUnixSeconds(unlockDate));
+      const startTime = new BN(toUnixSeconds(startDate));
+
+      // Validation: times
+      if (completionTime.lt(startTime)) {
+        notify('error', 'Completion time must be after start time');
+        setLoading(false);
+        return;
+      }
+      if (unlockTime.lt(completionTime)) {
+        notify('error', 'Unlock time must be at or after completion time');
+        setLoading(false);
+        return;
+      }
+
+      // Validation: staged goal amounts must reserve some space for fees
+      if (isTarget) {
+        const subGoalsArr = buildSubGoals();
+        const subTotal = subGoalsArr.reduce((acc: number, sg: any) => acc + (BN.isBN(sg.incentiveAmount) ? sg.incentiveAmount.toNumber() : 0), 0);
+        if (subTotal >= totalLamports) {
+          notify('error', 'Sum of stage incentives must be less than total incentive (reserve funds for fees)');
+          setLoading(false);
+          return;
+        }
+      }
       // detect optional fee_pool PDA on-chain; pass it if exists, otherwise pass null
       const [feePoolPda] = PublicKey.findProgramAddressSync([Buffer.from('gluex-fee-pool')], program.programId);
       const feePoolAcct = await program.provider.connection.getAccountInfo(feePoolPda);
@@ -366,6 +404,7 @@ const GoalsView: FC = () => {
       const sig = await program.methods
         .setupGoal(
           taker,
+          new BN(goalId),
           description,
           room,
           relations,

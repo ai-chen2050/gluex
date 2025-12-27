@@ -217,7 +217,7 @@ export const AboutView: FC = () => {
           </h2>
           <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full mt-3"></div>
           <div className="mt-4">
-            <FeePoolPanel />
+            <FeePoolPanel showExternal={false} />
           </div>
         </div>
       </section>

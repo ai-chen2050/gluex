@@ -54,16 +54,17 @@ describe("fee_pool", () => {
     );
     await program.provider.connection.confirmTransaction(sig);
 
+    const now = Math.floor(Date.now() / 1000);
+    const goalIdBn = new BN(now);
     const [goalsPda] = web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from("gluex-goals"),
         program.provider.publicKey.toBuffer(),
         taker.publicKey.toBuffer(),
+        Buffer.from(goalIdBn.toArray("le", 8)),
       ],
       program.programId
     );
-
-    const now = Math.floor(Date.now() / 1000);
 
     const subGoals = [
       {
@@ -83,6 +84,7 @@ describe("fee_pool", () => {
     await program.methods
       .setupGoal(
         taker.publicKey,
+        new BN(now),
         "desc",
         { loveGame: {} },
         { partner: {} },
