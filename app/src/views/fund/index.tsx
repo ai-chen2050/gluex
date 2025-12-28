@@ -49,7 +49,7 @@ export const FundraiseView: FC = () => {
   const [externalDonations, setExternalDonations] = useState<Array<{ network: string; tx: string; amount: string; currency: string }>>([]);
   const [donNet, setDonNet] = useState<string>('solana');
   const [donTx, setDonTx] = useState<string>('');
-  const [donAmt, setDonAmt] = useState<string>('');
+  const [donAmt, setDonAmt] = useState<string>('1');
   const [donCur, setDonCur] = useState<string>('SOL');
 
   const doCopy = async (text: string) => {
