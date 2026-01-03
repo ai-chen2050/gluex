@@ -61,6 +61,10 @@
         {
           "name": "currency",
           "type": "string"
+        },
+        {
+          "name": "txhash",
+          "type": "string"
         }
       ]
     },
@@ -937,6 +941,15 @@
               "array": [
                 "u8",
                 8
+              ]
+            }
+          },
+          {
+            "name": "txhash",
+            "type": {
+              "array": [
+                "u8",
+                64
               ]
             }
           }

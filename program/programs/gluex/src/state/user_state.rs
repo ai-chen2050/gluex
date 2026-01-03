@@ -169,21 +169,41 @@ pub struct FeePool {
     pub bump: u8,
 }
 
-#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize, Default)]
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct DonationEntry {
     pub donor: Pubkey,
     pub amount: u64,
     pub ts: i64,
     pub currency: [u8; 8],
+    pub txhash: [u8; 64],
+}
+
+impl Default for DonationEntry {
+    fn default() -> Self {
+        DonationEntry {
+            donor: Pubkey::default(),
+            amount: 0,
+            ts: 0,
+            currency: [0; 8],
+            txhash: [0; 64],
+        }
+    }
 }
 
 impl DonationEntry {
-    pub fn from_parts(donor: Pubkey, amount: u64, ts: i64, currency: [u8; 8]) -> Self {
+    pub fn from_parts(
+        donor: Pubkey,
+        amount: u64,
+        ts: i64,
+        currency: [u8; 8],
+        txhash: [u8; 64],
+    ) -> Self {
         DonationEntry {
             donor,
             amount,
             ts,
             currency,
+            txhash,
         }
     }
 }

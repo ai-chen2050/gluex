@@ -1,10 +1,13 @@
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useState, useEffect } from 'react';
 import Link from 'next/link';
 import FeePoolPanel from '../../components/FeePoolPanel';
 import { useLanguage } from '../../contexts/LanguageProvider';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { PublicKey, SystemProgram, TransactionMessage, VersionedTransaction } from '@solana/web3.js';
 import { notify } from '../../utils/notifications';
+import { useGlueXProgram } from '../../hooks/useGlueXProgram';
+import { Program } from '@coral-xyz/anchor';
+import { lamportsToSol } from '../../utils/solana';
 
 const ADDR_SOLANA = 'FP7mce6Z7i729vLKJPbCCDWUZx7Gb4271BUCJ7xFeAuw';
 const ADDR_ETH = '0x2620e16388b7673e96d7e78dab9de51c2bb2523e';
@@ -46,11 +49,12 @@ export const FundraiseView: FC = () => {
   const { language } = useLanguage();
   const t = copy[language];
   const [copied, setCopied] = useState<string | null>(null);
-  const [externalDonations, setExternalDonations] = useState<Array<{ network: string; tx: string; amount: string; currency: string }>>([]);
+  const [externalDonations, setExternalDonations] = useState<Array<{ network: string; tx?: string; amount: string; currency: string; donor?: string; ts?: number }>>([]);
   const [donNet, setDonNet] = useState<string>('solana');
   const [donTx, setDonTx] = useState<string>('');
   const [donAmt, setDonAmt] = useState<string>('1');
   const [donCur, setDonCur] = useState<string>('SOL');
+  const program = useGlueXProgram() as Program | null;
 
   const doCopy = async (text: string) => {
     try {
@@ -64,6 +68,66 @@ export const FundraiseView: FC = () => {
 
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
+
+  // Fetch external donations from on-chain fee pool
+  useEffect(() => {
+    if (!program) return;
+    (async () => {
+      try {
+        const [pda] = await PublicKey.findProgramAddress([Buffer.from('gluex-fee-pool')], program.programId);
+        const info = await program.account['feePool'].fetch(pda);
+        
+        // Parse donations from on-chain data
+        const parseDonation = (d: any, net = 'solana') => {
+          const donor = d.donor?.toBase58 ? d.donor.toBase58() : (typeof d.donor === 'string' ? d.donor : '');
+          const amountRaw = d.amount ?? 0;
+          const amountStr = amountRaw?.toString ? amountRaw.toString() : String(amountRaw);
+          const tsRaw = d.ts ?? 0;
+          const tsNum = tsRaw?.toNumber ? tsRaw.toNumber() : Number(tsRaw || 0);
+          let currency = '';
+          try {
+            const arr = d.currency as Uint8Array | Array<number> | Buffer;
+            if (arr) {
+              const s = new TextDecoder().decode(arr as Uint8Array).replace(/\u0000/g, '');
+              currency = s;
+            }
+          } catch (err) {
+            currency = '';
+          }
+          let txhash = '';
+          try {
+            const arr = d.txhash;
+            if (arr && Array.isArray(arr)) {
+              const uint8arr = arr instanceof Uint8Array ? arr : new Uint8Array(arr);
+              const s = new TextDecoder().decode(uint8arr).replace(/\u0000/g, '');
+              txhash = s;
+            }
+          } catch (err) {
+            txhash = '';
+          }
+
+          // Convert to display-friendly amounts
+          let displayAmount = amountStr;
+          const curLow = (currency || '').toLowerCase();
+          if (curLow === 'sol' || net === 'solana' && (curLow === '' || curLow === 'sol')) {
+            const n = Number(amountStr);
+            displayAmount = isFinite(n) ? String(lamportsToSol(n)) : amountStr;
+          } else if (curLow === 'eth' || curLow === 'wei' || net === 'ethereum' || net === 'base') {
+            const n = Number(amountStr);
+            displayAmount = isFinite(n) ? String(n / 1e18) : amountStr;
+          }
+
+          return { network: net, tx: txhash, amount: displayAmount, currency: currency || net.toUpperCase(), donor, ts: tsNum };
+        };
+
+        const list = (info.donations || []).map((d: any) => parseDonation(d, 'solana'));
+        console.log('Fetched external donations from fee pool:', list);
+        setExternalDonations(list);
+      } catch (e) {
+        console.error('Failed to fetch donations from fee pool:', e);
+      }
+    })();
+  }, [program, connection]);
 
   const sendSolDonation = useCallback(async (toAddr: string) => {
     if (!publicKey) {
@@ -199,11 +263,25 @@ export const FundraiseView: FC = () => {
                   externalDonations.map((d, i) => (
                     <div key={i} className="flex items-center justify-between bg-slate-900/30 p-2 rounded min-w-0">
                       <div className="text-xs min-w-0">
-                        <div className="font-mono text-slate-200 truncate max-w-full">{d.tx}</div>
+                        <div className="font-mono text-slate-200 truncate max-w-full">{d.tx || d.donor}</div>
                         <div className="text-slate-400">{d.network} • {d.amount} {d.currency}</div>
+                        {d.ts ? <div className="text-xs text-slate-500">{new Date(d.ts * 1000).toLocaleString()}</div> : null}
                       </div>
                       <div className="text-right">
-                        <a className="text-indigo-300 text-xs" href={d.network === 'solana' ? `https://solscan.io/tx/${d.tx}` : `https://etherscan.io/tx/${d.tx}`} target="_blank" rel="noreferrer">View</a>
+                        {d.tx && (
+                          <a 
+                            className="text-indigo-300 text-xs" 
+                            href={
+                              d.network === 'ethereum' ? `https://etherscan.io/tx/${d.tx}` :
+                              d.network === 'base' ? `https://basescan.org/tx/${d.tx}` :
+                              `https://solscan.io/tx/${d.tx}`
+                            } 
+                            target="_blank" 
+                            rel="noreferrer"
+                          >
+                            View
+                          </a>
+                        )}
                       </div>
                     </div>
                   ))

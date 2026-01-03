@@ -55,6 +55,16 @@ export const FeePoolPanel: FC<{ showExternal?: boolean }> = ({ showExternal = tr
                 } catch (err) {
                   currency = '';
                 }
+                let txhash = '';
+                try {
+                  const arr = d.txhash as Uint8Array | Array<number> | Buffer;
+                  if (arr) {
+                    const s = new TextDecoder().decode(arr as Uint8Array).replace(/\u0000/g, '');
+                    txhash = s;
+                  }
+                } catch (err) {
+                  txhash = '';
+                }
 
                 // friendly display for common currencies
                 let displayAmount = amountStr;
@@ -68,7 +78,7 @@ export const FeePoolPanel: FC<{ showExternal?: boolean }> = ({ showExternal = tr
                   displayAmount = isFinite(n) ? String(n / 1e18) : amountStr;
                 }
 
-                return { network: net, tx: '', amount: displayAmount, currency: currency || net.toUpperCase(), donor, ts: tsNum };
+                return { network: net, tx: txhash, amount: displayAmount, currency: currency || net.toUpperCase(), donor, ts: tsNum };
               };
 
               const list = (info.donations || []).map((d: any) => parseDonation(d, 'solana'));
@@ -286,7 +296,7 @@ export const FeePoolPanel: FC<{ showExternal?: boolean }> = ({ showExternal = tr
                           amountUnits = BigInt(Math.floor(Number(donAmt)));
                         }
                         await program.methods
-                          .addDonation(new BN(amountUnits.toString()), donCur)
+                          .addDonation(new BN(amountUnits.toString()), donCur, donTx)
                           .accounts({ feePool: poolPk, donor: publicKey })
                           .rpc();
 
@@ -311,6 +321,14 @@ export const FeePoolPanel: FC<{ showExternal?: boolean }> = ({ showExternal = tr
                               currency = s;
                             }
                           } catch (err) { currency = ''; }
+                          let txhash = '';
+                          try {
+                            const arr = d.txhash as Uint8Array | Array<number> | Buffer;
+                            if (arr) {
+                              const s = new TextDecoder().decode(arr as Uint8Array).replace(/\u0000/g, '');
+                              txhash = s;
+                            }
+                          } catch (err) { txhash = ''; }
                           let displayAmount = amountStr;
                           const curLow = (currency || '').toLowerCase();
                           if (curLow === 'sol' || net === 'solana' && (curLow === '' || curLow === 'sol')) {
@@ -320,7 +338,7 @@ export const FeePoolPanel: FC<{ showExternal?: boolean }> = ({ showExternal = tr
                             const n = Number(amountStr);
                             displayAmount = isFinite(n) ? String(n / 1e18) : amountStr;
                           }
-                          return { network: net, tx: '', amount: displayAmount, currency: currency || net.toUpperCase(), donor, ts: tsNum };
+                          return { network: net, tx: txhash, amount: displayAmount, currency: currency || net.toUpperCase(), donor, ts: tsNum };
                         };
 
                         const list = (info.donations || []).map((d: any) => parseDonation(d, donNet));
@@ -344,46 +362,6 @@ export const FeePoolPanel: FC<{ showExternal?: boolean }> = ({ showExternal = tr
               </div>
 
               <div className="text-xs text-slate-400">These entries are stored client-side for now; they can be used to display totals and later backed by on-chain records or a simple backend.</div>
-
-              <div className="space-y-2">
-                {(externalDonations.length === 0) ? (
-                  <div className="text-slate-500">No external donations recorded yet.</div>
-                ) : (
-                  externalDonations.map((d, i) => (
-                    <div key={i} className="flex items-center justify-between bg-slate-900/30 p-2 rounded min-w-0">
-                      <div className="text-xs min-w-0">
-                        <div className="font-mono text-slate-200 truncate max-w-full">{d.tx || d.donor}</div>
-                        <div className="text-slate-400">{d.network} • {d.amount} {d.currency}</div>
-                        {d.ts ? <div className="text-xs text-slate-500">{new Date(d.ts * 1000).toLocaleString()}</div> : null}
-                      </div>
-                      <div className="text-right">
-                        <a className="text-indigo-300 text-xs" href={d.network === 'solana' ? `https://solscan.io/tx/${d.tx}` : `https://etherscan.io/tx/${d.tx}`} target="_blank" rel="noreferrer">View</a>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Simple totals */}
-              {externalDonations.length > 0 && (
-                <div className="mt-3 text-xs text-slate-400">
-                  <div className="font-semibold text-slate-200">Manual totals</div>
-                  {(() => {
-                    const totals: Record<string, number> = {};
-                    externalDonations.forEach((d) => {
-                      const key = d.currency || d.network;
-                      const v = Number(d.amount) || 0;
-                      totals[key] = (totals[key] || 0) + v;
-                    });
-                    return Object.keys(totals).map((k) => (
-                      <div key={k} className="flex items-center justify-between">
-                        <div className="text-xs text-slate-400">{k}</div>
-                        <div className="text-xs text-slate-200">{totals[k]}</div>
-                      </div>
-                    ));
-                  })()}
-                </div>
-              )}
             </div>
           </div>
         </div>

@@ -126,7 +126,12 @@ pub fn set_fee_params(ctx: Context<SetFeeParams>, numerator: u64, denominator: u
     Ok(())
 }
 
-pub fn add_donation(ctx: Context<AddDonation>, amount: u64, currency: String) -> Result<()> {
+pub fn add_donation(
+    ctx: Context<AddDonation>,
+    amount: u64,
+    currency: String,
+    txhash: String,
+) -> Result<()> {
     let pool = &mut ctx.accounts.fee_pool;
     require!(
         pool.donations.len() < MAX_DONATIONS,
@@ -135,7 +140,8 @@ pub fn add_donation(ctx: Context<AddDonation>, amount: u64, currency: String) ->
     let ts = Clock::get()?.unix_timestamp;
     let donor = ctx.accounts.donor.key();
     let currency_fixed = string_to_fixed::<8>(&currency);
-    let entry = DonationEntry::from_parts(donor, amount, ts, currency_fixed);
+    let txhash_fixed = string_to_fixed::<64>(&txhash);
+    let entry = DonationEntry::from_parts(donor, amount, ts, currency_fixed, txhash_fixed);
     pool.donations.push(entry);
     Ok(())
 }
