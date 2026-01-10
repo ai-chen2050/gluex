@@ -1,5 +1,5 @@
 // Next, React
-import { FC, useEffect } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useWallet, useConnection } from '@solana/wallet-adapter-react';
@@ -103,6 +103,10 @@ export const HomeView: FC = () => {
   const { connection } = useConnection();
   const { language } = useLanguage();
   const t = content[language];
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   // Prepare hero title pieces so we can insert the rotating earth after "through GlueX"
   const heroMarker = 'through GlueX';
@@ -131,6 +135,71 @@ export const HomeView: FC = () => {
     }
   }, [wallet.publicKey, connection, getUserSOLBalance]);
 
+  // Intersection Observer for fade-in animations
+  useEffect(() => {
+    const heroObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsIntersecting(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (heroRef.current) {
+      heroObserver.observe(heroRef.current);
+    }
+
+    // Observer for scroll-fade-in sections - delay to ensure DOM is ready
+    let scrollObserver: IntersectionObserver | null = null;
+    let scrollElements: NodeListOf<Element> | null = null;
+
+    const timeoutId = setTimeout(() => {
+      scrollObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
+      );
+
+      scrollElements = document.querySelectorAll('.scroll-fade-in');
+      scrollElements.forEach((el) => scrollObserver?.observe(el));
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      if (heroRef.current) {
+        heroObserver.unobserve(heroRef.current);
+      }
+      if (scrollObserver && scrollElements) {
+        scrollElements.forEach((el) => scrollObserver?.unobserve(el));
+      }
+    };
+  }, []);
+
+  // Handle video load and autoplay
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      const handleLoadedData = () => {
+        setIsVideoLoaded(true);
+        video.play().catch((error) => {
+          console.log('Video autoplay prevented:', error);
+        });
+      };
+      video.addEventListener('loadeddata', handleLoadedData);
+      return () => {
+        video.removeEventListener('loadeddata', handleLoadedData);
+      };
+    }
+  }, []);
+
   const galleryImages = [
     {
       src: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80',
@@ -149,34 +218,40 @@ export const HomeView: FC = () => {
   return (
     <div className="mx-auto max-w-6xl px-3 sm:px-4 py-8 sm:py-12 space-y-12 sm:space-y-16">
       {/* Hero Section */}
-      <section className="flex flex-col gap-4 sm:gap-6">
-        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-slate-950/80 to-slate-900/80 backdrop-blur-md p-5 sm:p-10 text-center space-y-3 sm:space-y-5 shadow-[0_15px_50px_rgba(79,70,229,0.25)] sm:shadow-[0_25px_100px_rgba(79,70,229,0.35)]">
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-indigo-300 font-semibold">
-            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-indigo-500/50 bg-indigo-500/15 px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-[12px] font-semibold backdrop-blur-sm hover:bg-indigo-500/25 transition-all">
+      <section className="flex flex-col gap-4 sm:gap-6" ref={heroRef}>
+        <div className="relative rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-slate-950/80 to-slate-900/80 backdrop-blur-md p-5 sm:p-10 text-center space-y-3 sm:space-y-5 shadow-[0_15px_50px_rgba(79,70,229,0.25)] sm:shadow-[0_25px_100px_rgba(79,70,229,0.35)]">
+          {/* Content Layer */}
+          <div className={`w-full space-y-3 sm:space-y-5 transition-all duration-1000 ${
+            isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-indigo-300 font-semibold animate-fade-in">
+            <span className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-indigo-500/50 bg-indigo-500/15 px-3 sm:px-4 py-1 sm:py-1.5 text-[11px] sm:text-[12px] font-semibold backdrop-blur-sm hover:bg-indigo-500/25 transition-all hover:scale-105">
               <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-fuchsia-400 animate-pulse" />
               {t.heroEyebrow}
             </span>
-            <span className="text-slate-500 text-xs sm:text-sm">v{pkg.version}</span>
+            <span className="text-slate-400 text-xs sm:text-sm backdrop-blur-sm bg-slate-900/30 px-2 py-1 rounded">v{pkg.version}</span>
           </div>
-          <div className="space-y-1.5 sm:space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-6xl font-black tracking-tight leading-tight flex items-center gap-1 justify-center">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500 relative inline-block transition-all duration-500 hover:scale-110">
+          <div className="space-y-1.5 sm:space-y-3 animate-slide-up delay-200">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-6xl font-black tracking-tight leading-tight flex items-center justify-center flex-wrap gap-1">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-500 relative inline-block transition-all duration-500 hover:scale-110 animate-float">
                 G
-                <span className="absolute top-1/4 left-1/3 w-1.5 h-1.5 bg-green-700 rounded-sm"></span>
+                <span className="absolute top-1/4 left-1/3 w-1.5 h-1.5 bg-green-400 rounded-sm animate-pulse"></span>
               </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 relative inline-block transition-all duration-500 hover:scale-110 delay-100">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-500 relative inline-block transition-all duration-500 hover:scale-110 animate-float" style={{ animationDelay: '0.1s' }}>
                 l
-                <span className="absolute bottom-0 left-0 w-1.5 h-2 bg-blue-800 rounded-sm"></span>
+                <span className="absolute bottom-0 left-0 w-1.5 h-2 bg-blue-400 rounded-sm animate-pulse"></span>
               </span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500 hover:scale-110 delay-200">u</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 relative inline-block transition-all duration-500 hover:scale-110 delay-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 relative inline-block transition-all duration-500 hover:scale-110 animate-float" style={{ animationDelay: '0.2s' }}>
+                u
+              </span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 relative inline-block transition-all duration-500 hover:scale-110 animate-float" style={{ animationDelay: '0.3s' }}>
                 e
-                <span className="absolute bottom-1/4 right-1/3 w-1.5 h-1.5 bg-green-600 rounded-sm"></span>
+                <span className="absolute bottom-1/4 right-1/3 w-1.5 h-1.5 bg-orange-400 rounded-sm animate-pulse"></span>
               </span>
-              <span className="text-white transition-all duration-500 hover:scale-110 delay-400">X</span>
+              <span className="text-white relative inline-block transition-all duration-500 hover:scale-110 animate-float" style={{ animationDelay: '0.4s' }}>X</span>
             </h1>
             <div className="flex items-center justify-center gap-3">
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white whitespace-pre-line leading-snug text-balance">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white whitespace-pre-line leading-snug text-balance drop-shadow-lg">
                 {heroBefore}
                 {heroMarkerText && (
                   <>
@@ -185,10 +260,10 @@ export const HomeView: FC = () => {
                       type="button"
                       title="Rotate Earth"
                       aria-label="rotate-earth"
-                      className="inline-block ml-0 sm:ml-1 p-1 rounded-full hover:bg-white/5 transition"
+                      className="inline-block ml-0 sm:ml-1 p-1 rounded-full hover:bg-white/10 transition-all hover:scale-110"
                     >
                       <span
-                        className="rotating inline-block text-2xl sm:text-5xl transform transition duration-500 hover:scale-110"
+                        className="rotating inline-block text-2xl sm:text-5xl transform transition duration-500 hover:scale-125 drop-shadow-lg"
                         aria-hidden
                       >
                         🌏
@@ -197,15 +272,14 @@ export const HomeView: FC = () => {
                   </>
                 )}
                 {!heroMarkerText && (
-                  // if marker not found, place the earth at the end of the first line
                   <button
                     type="button"
                     title="Rotate Earth"
                     aria-label="rotate-earth"
-                    className="inline-block ml-0 sm:ml-1 p-1 rounded-full hover:bg-white/5 transition"
+                    className="inline-block ml-0 sm:ml-1 p-1 rounded-full hover:bg-white/10 transition-all hover:scale-110"
                   >
                     <span
-                      className="rotating inline-block text-2xl sm:text-5xl transform transition duration-500 hover:scale-110"
+                      className="rotating inline-block text-2xl sm:text-5xl transform transition duration-500 hover:scale-125 drop-shadow-lg"
                       aria-hidden
                     >
                       🌏
@@ -213,49 +287,53 @@ export const HomeView: FC = () => {
                   </button>
                 )}
                 {heroAfter}
-                {/* scoped keyframes to make the earth rotate continuously */}
-                <style jsx>{`
-                .rotating {
-                  /* continuous slow rotation; adjust duration as desired */
-                  animation: spin 8s linear infinite;
-                }
-                @keyframes spin {
-                  from {
-                  transform: rotate(0deg);
-                  }
-                  to {
-                  transform: rotate(360deg);
-                  }
-                }
-                `}</style>
               </h2>
             </div>
           </div>
-          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-200 leading-relaxed max-w-3xl mx-auto whitespace-pre-line text-balance">
+          
+          {/* Video between title and subtitle */}
+          <div className="flex justify-center my-4 sm:my-6 animate-fade-in delay-300">
+            <div className="relative w-full max-w-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-indigo-500/30 shadow-[0_10px_40px_rgba(79,70,229,0.2)] hover:shadow-[0_15px_60px_rgba(79,70,229,0.3)] transition-all duration-300 hover:scale-[1.02] transform bg-slate-900/30">
+              <video
+                ref={videoRef}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-auto"
+              >
+                <source src="/gluex/hero.mp4" type="video/mp4" />
+              </video>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-transparent pointer-events-none"></div>
+            </div>
+          </div>
+          
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-200 leading-relaxed max-w-3xl mx-auto whitespace-pre-line text-balance drop-shadow-md animate-fade-in delay-400">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 justify-center pt-1 sm:pt-2">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 justify-center pt-1 sm:pt-2 animate-fade-in delay-600">
             <Link
               href="/goals"
-              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-bold bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white border-0 shadow-[0_4px_12px_rgba(136,58,255,0.2)] sm:shadow-[0_8px_24px_rgba(136,58,255,0.3)] hover:shadow-[0_8px_20px_rgba(136,58,255,0.3)] sm:hover:shadow-[0_12px_32px_rgba(136,58,255,0.4)] hover:from-indigo-400 hover:to-fuchsia-400 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs sm:text-base"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-bold bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white border-0 shadow-[0_4px_12px_rgba(136,58,255,0.2)] sm:shadow-[0_8px_24px_rgba(136,58,255,0.3)] hover:shadow-[0_8px_20px_rgba(136,58,255,0.3)] sm:hover:shadow-[0_12px_32px_rgba(136,58,255,0.4)] hover:from-indigo-400 hover:to-fuchsia-400 transition-all duration-200 transform hover:scale-110 active:scale-95 text-xs sm:text-base animate-pulse-glow"
             >
               {t.heroCta}
             </Link>
             <Link
               href="https://github.com/ai-chen2050/gluex"
               target="_blank"
-              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-semibold text-slate-200 border border-slate-600/50 bg-slate-900/40 hover:bg-slate-800/60 hover:text-white hover:border-indigo-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 backdrop-blur-sm text-xs sm:text-base"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-semibold text-slate-200 border border-slate-600/50 bg-slate-900/60 hover:bg-slate-800/80 hover:text-white hover:border-indigo-500/50 transition-all duration-200 transform hover:scale-110 active:scale-95 backdrop-blur-sm text-xs sm:text-base"
             >
               {t.heroSecondary}
             </Link>
           </div>
+          </div>
         </div>
 
         {/* Wallet Balance Card */}
-        <div className="rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/60 backdrop-blur-md p-6 sm:p-10 shadow-[0_15px_50px_rgba(79,70,229,0.15)] sm:shadow-[0_20px_70px_rgba(79,70,229,0.2)] space-y-4 sm:space-y-6 max-w-2xl w-full mx-auto">
+        <div className={`rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/60 backdrop-blur-md p-6 sm:p-10 shadow-[0_15px_50px_rgba(79,70,229,0.15)] sm:shadow-[0_20px_70px_rgba(79,70,229,0.2)] space-y-4 sm:space-y-6 max-w-2xl w-full mx-auto scroll-fade-in hover:shadow-[0_25px_80px_rgba(79,70,229,0.3)] transition-all duration-300 hover:border-indigo-500/30 hover:scale-[1.02] transform`}>
           <RequestAirdrop />
           <div className="space-y-1.5 sm:space-y-2">
-            <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 leading-tight">
+            <div className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300 leading-tight animate-pulse-number">
               {wallet.publicKey ? (balance || 0).toLocaleString() : '—'}
               <span className="text-base text-2xl sm:text-2xl md:text-2xl ml-2">SOL</span>
             </div>
@@ -264,7 +342,7 @@ export const HomeView: FC = () => {
           <p className="text-center text-xs sm:text-sm text-slate-500 break-all line-clamp-2">
             {wallet.publicKey ? wallet.publicKey.toBase58() : 'Connect a wallet to preview live balances.'}
           </p>
-          <div className="mockup-code bg-slate-900/80 text-left rounded-lg sm:rounded-xl border border-slate-700/50 text-xs sm:text-sm overflow-hidden">
+          <div className="mockup-code bg-slate-900/80 text-left rounded-lg sm:rounded-xl border border-slate-700/50 text-xs sm:text-sm overflow-hidden hover:border-indigo-500/50 transition-all duration-300">
             <pre data-prefix="$">
               <code className="text-indigo-300">gluex launch --habit 21d --proof auto</code>
             </pre>
@@ -274,28 +352,28 @@ export const HomeView: FC = () => {
             <pre data-prefix=">" className="text-success text-emerald-400">
               <code># incentives routed ✔</code>
             </pre>
-
           </div>
         </div>
       </section>
 
       {/* Highlights Section */}
-      <section className="space-y-6 sm:space-y-8">
+      <section className="space-y-6 sm:space-y-8 scroll-fade-in">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.highlightHeading}</h2>
-          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full animate-slide-right"></div>
         </div>
         <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
           {t.highlights.map((card, idx) => (
             <div
               key={card.title}
-              className="group relative rounded-xl sm:rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-4 sm:p-6 space-y-2 sm:space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 hover:from-slate-950/80 hover:to-slate-900/60 overflow-hidden"
+              className="group relative rounded-xl sm:rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-4 sm:p-6 space-y-2 sm:space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 hover:from-slate-950/80 hover:to-slate-900/60 overflow-hidden hover:scale-105 transform"
+              style={{ animationDelay: `${idx * 0.1}s` }}
             >
               <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/10 to-fuchsia-500/10 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-base sm:text-lg font-bold text-indigo-300 group-hover:from-indigo-500/40 group-hover:to-fuchsia-500/40 transition-colors flex-shrink-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 flex items-center justify-center text-base sm:text-lg font-bold text-indigo-300 group-hover:from-indigo-500/40 group-hover:to-fuchsia-500/40 transition-all duration-300 group-hover:scale-110 flex-shrink-0">
                 {idx + 1}
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-300 group-hover:to-fuchsia-300 transition-all">{card.title}</h3>
+              <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-300 group-hover:to-fuchsia-300 transition-all duration-300">{card.title}</h3>
               <p className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">{card.description}</p>
             </div>
           ))}
@@ -303,53 +381,73 @@ export const HomeView: FC = () => {
       </section>
 
       {/* Diagrams Section */}
-      <section className="space-y-6 sm:space-y-8">
+      <section className="space-y-6 sm:space-y-8 scroll-fade-in">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.diagramHeading}</h2>
-          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full animate-slide-right"></div>
         </div>
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
-          {t.diagrams.map((diagram) => (
+          {t.diagrams.map((diagram, idx) => (
             <div
               key={diagram.title}
-              className="group rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 overflow-hidden"
+              className="group rounded-2xl sm:rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-slate-950/60 to-slate-900/40 backdrop-blur-md p-4 sm:p-6 space-y-3 sm:space-y-4 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 overflow-hidden hover:scale-[1.02] transform"
+              style={{ animationDelay: `${idx * 0.15}s` }}
             >
-              <div className="relative rounded-lg sm:rounded-2xl overflow-hidden bg-black border border-slate-800/50 group-hover:border-indigo-500/30 transition-all">
+              <div className="relative rounded-lg sm:rounded-2xl overflow-hidden bg-black border border-slate-800/50 group-hover:border-indigo-500/30 transition-all duration-300">
                 <Image
                   src={diagram.url}
                   alt={diagram.title}
                   width={800}
                   height={600}
-                  className="w-full rounded-lg sm:rounded-xl bg-slate-950 h-48 sm:h-64 md:h-80 object-contain group-hover:scale-105 transition-transform duration-300"
+                  className="w-full rounded-lg sm:rounded-xl bg-slate-950 h-48 sm:h-64 md:h-80 object-contain group-hover:scale-110 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
               <div className="space-y-1 sm:space-y-2">
-                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-300 group-hover:to-fuchsia-300 transition-all">{diagram.title}</h3>
-                <p className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-300 transition-colors leading-relaxed">{diagram.description}</p>
+                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-indigo-300 group-hover:to-fuchsia-300 transition-all duration-300">{diagram.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-400 group-hover:text-slate-300 transition-colors duration-300 leading-relaxed">{diagram.description}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Vision Section */}
-      <section className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-fuchsia-950/30 backdrop-blur-md p-6 sm:p-10 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(79,70,229,0.15)] sm:shadow-[0_15px_60px_rgba(79,70,229,0.2)]">
+
+      {/* Vision Section with Video Embedded */}
+      <section className="rounded-2xl sm:rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-fuchsia-950/30 backdrop-blur-md p-6 sm:p-10 space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(79,70,229,0.15)] sm:shadow-[0_15px_60px_rgba(79,70,229,0.2)] scroll-fade-in hover:shadow-[0_15px_60px_rgba(79,70,229,0.3)] transition-all duration-300 hover:border-indigo-500/50">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-fuchsia-300">{t.inspirationHeading}</h2>
         <p className="text-sm sm:text-base md:text-lg text-slate-200 leading-relaxed">{t.inspirationBody}</p>
+        {/* Vision Video Embedded */}
+        <div className="relative w-full max-w-4xl mx-auto rounded-2xl sm:rounded-3xl border border-indigo-500/30 overflow-hidden shadow-[0_10px_40px_rgba(79,70,229,0.15)] sm:shadow-[0_20px_70px_rgba(79,70,229,0.2)] group aspect-video bg-slate-950 mt-6">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls
+            className="w-full h-full object-cover"
+            poster="/gluex/vision-poster.jpg"
+          >
+            <source src="/gluex/vision.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          {/* Optional: Overlay for subtle effect */}
+          <div className="absolute inset-0 bg-indigo-900/10 mix-blend-overlay pointer-events-none"></div>
+        </div>
       </section>
 
       {/* Gallery Section */}
-      <section className="space-y-6 sm:space-y-8">
+      <section className="space-y-6 sm:space-y-8 scroll-fade-in">
         <div className="space-y-2">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.galleryHeading}</h2>
-          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full"></div>
+          <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full animate-slide-right"></div>
         </div>
         <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
           {galleryImages.map((item, idx) => (
             <figure
               key={item.caption}
-              className="group rounded-xl sm:rounded-2xl overflow-hidden border border-indigo-500/20 bg-slate-950/60 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 cursor-pointer"
+              className="group rounded-xl sm:rounded-2xl overflow-hidden border border-indigo-500/20 bg-slate-950/60 shadow-[0_10px_40px_rgba(79,70,229,0.1)] hover:shadow-[0_20px_60px_rgba(136,58,255,0.2)] transition-all duration-300 hover:border-indigo-500/40 cursor-pointer hover:scale-105 transform"
+              style={{ animationDelay: `${idx * 0.1}s` }}
             >
               <div className="relative overflow-hidden bg-slate-900/80 h-40 sm:h-48 md:h-56">
                 <Image
@@ -357,11 +455,11 @@ export const HomeView: FC = () => {
                   alt={item.caption}
                   width={800}
                   height={400}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-125 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </div>
-              <figcaption className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300 bg-gradient-to-r from-slate-900/80 to-slate-950/80 group-hover:text-white transition-colors">
+              <figcaption className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300 bg-gradient-to-r from-slate-900/80 to-slate-950/80 group-hover:text-white transition-colors duration-300">
                 <span className="text-indigo-400 font-bold mr-1.5 sm:mr-2">0{idx + 1}.</span>
                 {item.caption}
               </figcaption>
@@ -371,16 +469,180 @@ export const HomeView: FC = () => {
       </section>
 
       {/* Final CTA Section */}
-      <section className="rounded-2xl sm:rounded-3xl border border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-950/50 to-indigo-950/40 backdrop-blur-md p-6 sm:p-12 text-center space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(217,70,239,0.15)] sm:shadow-[0_20px_80px_rgba(217,70,239,0.2)]">
+      <section className="rounded-2xl sm:rounded-3xl border border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-950/50 to-indigo-950/40 backdrop-blur-md p-6 sm:p-12 text-center space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(217,70,239,0.15)] sm:shadow-[0_20px_80px_rgba(217,70,239,0.2)] scroll-fade-in hover:shadow-[0_25px_100px_rgba(217,70,239,0.3)] transition-all duration-300 hover:border-fuchsia-500/60">
         <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 via-rose-300 to-indigo-300">{t.ctaTitle}</h3>
         <p className="text-sm sm:text-base md:text-lg text-slate-200 max-w-2xl mx-auto">{t.ctaSubtitle}</p>
         <Link
           href="/goals"
-          className="inline-block btn btn-sm sm:btn-md px-6 sm:px-10 py-2 sm:py-3 font-bold bg-gradient-to-r from-fuchsia-500 to-rose-500 text-white border-0 shadow-[0_4px_12px_rgba(217,70,239,0.2)] sm:shadow-[0_8px_24px_rgba(217,70,239,0.3)] hover:shadow-[0_6px_16px_rgba(217,70,239,0.25)] sm:hover:shadow-[0_12px_32px_rgba(217,70,239,0.4)] hover:from-fuchsia-400 hover:to-rose-400 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs sm:text-base"
+          className="inline-block btn btn-sm sm:btn-md px-6 sm:px-10 py-2 sm:py-3 font-bold bg-gradient-to-r from-fuchsia-500 to-rose-500 text-white border-0 shadow-[0_4px_12px_rgba(217,70,239,0.2)] sm:shadow-[0_8px_24px_rgba(217,70,239,0.3)] hover:shadow-[0_6px_16px_rgba(217,70,239,0.25)] sm:hover:shadow-[0_12px_32px_rgba(217,70,239,0.4)] hover:from-fuchsia-400 hover:to-rose-400 transition-all duration-200 transform hover:scale-110 active:scale-95 text-xs sm:text-base animate-pulse-glow"
         >
           {t.ctaButton}
         </Link>
       </section>
+      
+      {/* Global animations and styles */}
+      <style jsx global>{`
+        .scroll-fade-in {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        
+        .scroll-fade-in.visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        
+        @keyframes slide-right {
+          from {
+            width: 0;
+            opacity: 0;
+          }
+          to {
+            width: 3rem;
+            opacity: 1;
+          }
+        }
+        
+        .animate-slide-right {
+          animation: slide-right 0.8s ease-out forwards;
+        }
+        
+        .rotating {
+          animation: spin 8s linear infinite;
+        }
+        
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        
+        @keyframes gradient-xy {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        
+        .animate-gradient-xy {
+          background-size: 200% 200%;
+          animation: gradient-xy 15s ease infinite;
+        }
+        
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 1s ease-out forwards;
+        }
+        
+        .delay-200 {
+          animation-delay: 0.2s;
+          opacity: 0;
+        }
+        
+        .delay-300 {
+          animation-delay: 0.3s;
+          opacity: 0;
+        }
+        
+        .delay-400 {
+          animation-delay: 0.4s;
+          opacity: 0;
+        }
+        
+        .delay-600 {
+          animation-delay: 0.6s;
+          opacity: 0;
+        }
+        
+        @keyframes slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slide-up {
+          animation: slide-up 0.8s ease-out forwards;
+        }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        
+        .animate-float {
+          animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes particles {
+          0% {
+            transform: translateY(0) translateX(0) scale(1);
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(-100vh) translateX(50px) scale(0);
+            opacity: 0;
+          }
+        }
+        
+        .animate-particles {
+          animation: particles linear infinite;
+        }
+        
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 4px 12px rgba(136, 58, 255, 0.2), 0 0 20px rgba(136, 58, 255, 0.1);
+          }
+          50% {
+            box-shadow: 0 4px 12px rgba(136, 58, 255, 0.4), 0 0 30px rgba(136, 58, 255, 0.3);
+          }
+        }
+        
+        .animate-pulse-glow {
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-number {
+          0%, 100% {
+            filter: brightness(1);
+          }
+          50% {
+            filter: brightness(1.2);
+          }
+        }
+        
+        .animate-pulse-number {
+          animation: pulse-number 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
