@@ -110,4 +110,45 @@ pub mod gluex {
     pub fn claim_unused(ctx: Context<ClaimUnused>) -> Result<()> {
         instructions::manage::claim_unused(ctx)
     }
+
+    // Bounty System
+    pub fn publish_bounty(
+        ctx: Context<PublishBounty>,
+        bounty_id: i64,
+        description: String,
+        task_requirements: String,
+        incentive_amount: u64,
+        deadline: i64,
+        max_claims: u16,
+    ) -> Result<()> {
+        instructions::bounty::publish_bounty(
+            ctx,
+            bounty_id,
+            description,
+            task_requirements,
+            incentive_amount,
+            deadline,
+            max_claims,
+        )
+    }
+
+    pub fn claim_bounty(ctx: Context<ClaimBounty>) -> Result<()> {
+        instructions::bounty::claim_bounty(ctx)
+    }
+
+    pub fn verify_and_reward_bounty(
+        ctx: Context<VerifyAndRewardBounty>,
+        is_approved: bool,
+    ) -> Result<()> {
+        instructions::bounty::verify_and_reward_bounty(ctx, is_approved)
+    }
+
+    // Gamification & Profiles
+    pub fn register_profile(ctx: Context<RegisterProfile>, referrer: Option<Pubkey>) -> Result<()> {
+        instructions::profile::register_profile(ctx, referrer)
+    }
+
+    pub fn record_social_interaction(ctx: Context<RecordSocialInteraction>) -> Result<()> {
+        instructions::profile::record_social_interaction(ctx)
+    }
 }

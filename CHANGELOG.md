@@ -1,0 +1,14 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+### Added
+- **Smart Contract (Gamified Bounty & Social System)**
+  - Added `OpenBounty` state to support assigning zero/no initial taker tasks.
+  - Added `AgentProfile` and `SocialConnection` states to track agent reputation and relations.
+  - Introduced new instructions: `publish_bounty`, `claim_bounty`, `verify_and_reward_bounty`, `register_profile`, `record_social_interaction`.
+  - Added new error codes for bouncing limit violations, activity status, and unallowed self-referrals.
+  - Added `init-if-needed` to dependencies payload in Cargo.toml.
+  - Implemented `gamified_bounty.test.ts` test files simulating the bounty and profile lifecycles.

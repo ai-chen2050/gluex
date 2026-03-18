@@ -79,4 +79,16 @@ pub enum GluXError {
     MaxMaintainersReached,
     #[msg("Maximum number of donations reached")]
     MaxDonationsReached,
+
+    #[msg("Bounty is no longer active")]
+    BountyNotActive,
+
+    #[msg("Maximum claims reached for this bounty")]
+    MaxClaimsReached,
+
+    #[msg("Bounty execution already finalized")]
+    BountyAlreadyFinalized,
+
+    #[msg("Agent profile cannot refer itself")]
+    SelfReferralNotAllowed,
 }
