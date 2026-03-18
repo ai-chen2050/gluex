@@ -13,7 +13,7 @@ const content = {
     heroEyebrow: 'On-chain incentive rail',
     heroTitle: 'Connecting everyone with Crypto glue through GlueX \nEmbrace the Future of Behavioral incentive 💰',
     heroSubtitle:
-      'Behavioral incentive rails for every relationship.\nDesign 21-day habits, staged targets and surprise transfers with automatic verification on Solana.',
+      'Behavioral incentive rails for every relationship.\nDesign 21-day habits, staged targets, surprise transfers, and global Agent bounties with automatic verification on Solana.',
     heroCta: 'Launch a mission',
     heroSecondary: 'Understand the design memo',
     highlightHeading: 'Why communities choose GlueX',
@@ -21,6 +21,10 @@ const content = {
       {
         title: 'Multi-role trust rooms',
         description: 'Capture parent–child, partners, DAO squads or workplace rituals inside one programmable space.',
+      },
+      {
+        title: 'Agent Guild & Bounties',
+        description: 'Sponsor open missions, claim global bounties, and build decentralized reputation on the Social Graph network.',
       },
       {
         title: 'Proof-first automation',
@@ -56,7 +60,7 @@ const content = {
   zh: {
     heroEyebrow: '链上激励底座',
     heroTitle: 'GlueX：面向多角色关系的行为激励新范式',
-    heroSubtitle: '21 天习惯、阶段性目标与惊喜时刻都可自动验证、自动结算，保障双方协商结果。',
+    heroSubtitle: '21 天习惯、阶段性目标、惊喜时刻与全球 Agent 悬赏都能自动验证、自动结算，保障多方协作结果。',
     heroCta: '立即创建激励计划',
     heroSecondary: '查看设计思路',
     highlightHeading: '为什么选择 GlueX',
@@ -64,6 +68,10 @@ const content = {
       {
         title: '多角色信任空间',
         description: '亲子、情侣、团队或 DAO 小组都能在同一个自动化空间内定义目标与激励。',
+      },
+      {
+        title: 'Agent 悬赏与社交图谱',
+        description: '面向全网发布公开悬赏，参与认领并完成任务，在互动图谱中建立并展示你的链上声誉。',
       },
       {
         title: '证据优先的自动化',
@@ -311,17 +319,23 @@ export const HomeView: FC = () => {
           <p className="text-xs sm:text-sm md:text-base lg:text-lg text-slate-200 leading-relaxed max-w-3xl mx-auto whitespace-pre-line text-balance drop-shadow-md animate-fade-in delay-400">
             {t.heroSubtitle}
           </p>
-          <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 justify-center pt-1 sm:pt-2 animate-fade-in delay-600">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center pt-2 sm:pt-4 animate-fade-in delay-600">
             <Link
               href="/goals"
-              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-bold bg-gradient-to-r from-indigo-500 to-fuchsia-500 text-white border-0 shadow-[0_4px_12px_rgba(136,58,255,0.2)] sm:shadow-[0_8px_24px_rgba(136,58,255,0.3)] hover:shadow-[0_8px_20px_rgba(136,58,255,0.3)] sm:hover:shadow-[0_12px_32px_rgba(136,58,255,0.4)] hover:from-indigo-400 hover:to-fuchsia-400 transition-all duration-200 transform hover:scale-110 active:scale-95 text-xs sm:text-base animate-pulse-glow"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-bold bg-gradient-to-r from-indigo-500 to-blue-500 text-white border-0 shadow-[0_4px_12px_rgba(79,70,229,0.2)] sm:shadow-[0_8px_24px_rgba(79,70,229,0.3)] hover:shadow-[0_8px_20px_rgba(79,70,229,0.3)] sm:hover:shadow-[0_12px_32px_rgba(79,70,229,0.4)] hover:from-indigo-400 hover:to-blue-400 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs sm:text-base animate-pulse-glow"
             >
               {t.heroCta}
             </Link>
             <Link
+              href="/agents"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-bold bg-gradient-to-r from-fuchsia-500 to-rose-500 text-white border-0 shadow-[0_4px_12px_rgba(217,70,239,0.2)] sm:shadow-[0_8px_24px_rgba(217,70,239,0.3)] hover:shadow-[0_8px_20px_rgba(217,70,239,0.3)] sm:hover:shadow-[0_12px_32px_rgba(217,70,239,0.4)] hover:from-fuchsia-400 hover:to-rose-400 transition-all duration-200 transform hover:scale-105 active:scale-95 text-xs sm:text-base animate-pulse-glow"
+            >
+              {language === 'en' ? 'Explore Global Bounties' : '探索全网智能体悬赏'}
+            </Link>
+            <Link
               href="https://github.com/ai-chen2050/gluex"
               target="_blank"
-              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-semibold text-slate-200 border border-slate-600/50 bg-slate-900/60 hover:bg-slate-800/80 hover:text-white hover:border-indigo-500/50 transition-all duration-200 transform hover:scale-110 active:scale-95 backdrop-blur-sm text-xs sm:text-base"
+              className="btn btn-sm sm:btn-md px-4 sm:px-8 py-2 sm:py-3 font-semibold text-slate-200 border border-slate-600/50 bg-slate-900/60 hover:bg-slate-800/80 hover:text-white hover:border-indigo-500/50 transition-all duration-200 transform hover:scale-105 active:scale-95 backdrop-blur-sm text-xs sm:text-base"
             >
               {t.heroSecondary}
             </Link>
@@ -362,7 +376,7 @@ export const HomeView: FC = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">{t.highlightHeading}</h2>
           <div className="h-1 w-12 bg-gradient-to-r from-indigo-500 to-fuchsia-500 rounded-full animate-slide-right"></div>
         </div>
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-4">
           {t.highlights.map((card, idx) => (
             <div
               key={card.title}

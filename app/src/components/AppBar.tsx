@@ -17,8 +17,8 @@ export const AppBar: React.FC = () => {
   const { language, setLanguage } = useLanguage();
   const navCopy =
     language === 'zh'
-      ? { home: '首页', goals: '目标', fund: '捐赠', about: '关于', leaders: '排行榜' }
-      : { home: 'Home', goals: 'Goals', fund: 'Funding', about: 'About', leaders: 'Leader' };
+      ? { home: '首页', goals: '目标', fund: '捐赠', about: '关于', leaders: '排行榜', agents: '智能体 (Bounties)' }
+      : { home: 'Home', goals: 'Goals', fund: 'Funding', about: 'About', leaders: 'Leader', agents: 'Agents' };
   const [isNavOpen, setIsNavOpen] = useState(false);
   return (
     <div>
@@ -46,6 +46,11 @@ export const AppBar: React.FC = () => {
           <NavElement
             label={navCopy.home}
             href="/"
+            navigationStarts={() => setIsNavOpen(false)}
+          />
+          <NavElement
+            label={navCopy.agents}
+            href="/agents"
             navigationStarts={() => setIsNavOpen(false)}
           />
           <NavElement

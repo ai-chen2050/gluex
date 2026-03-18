@@ -121,6 +121,97 @@
       ]
     },
     {
+      "name": "claim_bounty",
+      "discriminator": [
+        225,
+        157,
+        163,
+        238,
+        239,
+        169,
+        75,
+        226
+      ],
+      "accounts": [
+        {
+          "name": "open_bounty",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  112,
+                  101,
+                  110,
+                  45,
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "open_bounty.issuer",
+                "account": "OpenBounty"
+              },
+              {
+                "kind": "account",
+                "path": "open_bounty.bounty_id",
+                "account": "OpenBounty"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bounty_execution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121,
+                  45,
+                  101,
+                  120,
+                  101,
+                  99
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "open_bounty"
+              },
+              {
+                "kind": "account",
+                "path": "taker"
+              }
+            ]
+          }
+        },
+        {
+          "name": "taker",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
       "name": "claim_unused",
       "discriminator": [
         124,
@@ -362,6 +453,215 @@
         {
           "name": "bump",
           "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "publish_bounty",
+      "discriminator": [
+        46,
+        137,
+        206,
+        183,
+        19,
+        214,
+        53,
+        87
+      ],
+      "accounts": [
+        {
+          "name": "open_bounty",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  112,
+                  101,
+                  110,
+                  45,
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "issuer"
+              },
+              {
+                "kind": "arg",
+                "path": "bounty_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "issuer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "fee_pool",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "bounty_id",
+          "type": "i64"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "task_requirements",
+          "type": "string"
+        },
+        {
+          "name": "incentive_amount",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "i64"
+        },
+        {
+          "name": "max_claims",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "record_social_interaction",
+      "discriminator": [
+        123,
+        162,
+        127,
+        22,
+        250,
+        154,
+        131,
+        221
+      ],
+      "accounts": [
+        {
+          "name": "connection",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  115,
+                  111,
+                  99,
+                  105,
+                  97,
+                  108,
+                  45,
+                  99,
+                  111,
+                  110,
+                  110
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user_a"
+              },
+              {
+                "kind": "account",
+                "path": "user_b"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_a",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_b"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_profile",
+      "discriminator": [
+        218,
+        120,
+        4,
+        210,
+        2,
+        210,
+        149,
+        255
+      ],
+      "accounts": [
+        {
+          "name": "profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  103,
+                  101,
+                  110,
+                  116,
+                  45,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "payer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "referrer",
+          "type": {
+            "option": "pubkey"
+          }
         }
       ]
     },
@@ -756,9 +1056,140 @@
         }
       ],
       "args": []
+    },
+    {
+      "name": "verify_and_reward_bounty",
+      "discriminator": [
+        185,
+        14,
+        183,
+        82,
+        61,
+        76,
+        247,
+        173
+      ],
+      "accounts": [
+        {
+          "name": "open_bounty",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  111,
+                  112,
+                  101,
+                  110,
+                  45,
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "issuer"
+              },
+              {
+                "kind": "account",
+                "path": "open_bounty.bounty_id",
+                "account": "OpenBounty"
+              }
+            ]
+          }
+        },
+        {
+          "name": "bounty_execution",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  117,
+                  110,
+                  116,
+                  121,
+                  45,
+                  101,
+                  120,
+                  101,
+                  99
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "open_bounty"
+              },
+              {
+                "kind": "account",
+                "path": "taker_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "issuer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "taker_account",
+          "writable": true
+        },
+        {
+          "name": "taker_profile",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "referrer_profile",
+          "writable": true,
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "is_approved",
+          "type": "bool"
+        }
+      ]
     }
   ],
   "accounts": [
+    {
+      "name": "AgentProfile",
+      "discriminator": [
+        60,
+        227,
+        42,
+        24,
+        0,
+        87,
+        86,
+        205
+      ]
+    },
+    {
+      "name": "BountyExecution",
+      "discriminator": [
+        103,
+        193,
+        154,
+        108,
+        212,
+        51,
+        179,
+        141
+      ]
+    },
     {
       "name": "FeePool",
       "discriminator": [
@@ -770,6 +1201,32 @@
         5,
         51,
         242
+      ]
+    },
+    {
+      "name": "OpenBounty",
+      "discriminator": [
+        76,
+        83,
+        238,
+        127,
+        179,
+        64,
+        114,
+        233
+      ]
+    },
+    {
+      "name": "SocialConnection",
+      "discriminator": [
+        111,
+        193,
+        162,
+        215,
+        175,
+        128,
+        54,
+        167
       ]
     },
     {
@@ -915,9 +1372,97 @@
       "code": 6025,
       "name": "MaxDonationsReached",
       "msg": "Maximum number of donations reached"
+    },
+    {
+      "code": 6026,
+      "name": "BountyNotActive",
+      "msg": "Bounty is no longer active"
+    },
+    {
+      "code": 6027,
+      "name": "MaxClaimsReached",
+      "msg": "Maximum claims reached for this bounty"
+    },
+    {
+      "code": 6028,
+      "name": "BountyAlreadyFinalized",
+      "msg": "Bounty execution already finalized"
+    },
+    {
+      "code": 6029,
+      "name": "SelfReferralNotAllowed",
+      "msg": "Agent profile cannot refer itself"
     }
   ],
   "types": [
+    {
+      "name": "AgentProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "reputation_score",
+            "type": "u64"
+          },
+          {
+            "name": "tasks_completed",
+            "type": "u32"
+          },
+          {
+            "name": "invited_by",
+            "type": "pubkey"
+          },
+          {
+            "name": "joined_at",
+            "type": "i64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BountyExecution",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bounty_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "taker",
+            "type": "pubkey"
+          },
+          {
+            "name": "assigned_at",
+            "type": "i64"
+          },
+          {
+            "name": "is_approved",
+            "type": "bool"
+          },
+          {
+            "name": "is_rejected",
+            "type": "bool"
+          },
+          {
+            "name": "proof_uri",
+            "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "DonationEntry",
       "type": {
@@ -1038,6 +1583,54 @@
       }
     },
     {
+      "name": "OpenBounty",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "issuer",
+            "type": "pubkey"
+          },
+          {
+            "name": "bounty_id",
+            "type": "i64"
+          },
+          {
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "name": "task_requirements",
+            "type": "string"
+          },
+          {
+            "name": "incentive_amount",
+            "type": "u64"
+          },
+          {
+            "name": "deadline",
+            "type": "i64"
+          },
+          {
+            "name": "max_claims",
+            "type": "u16"
+          },
+          {
+            "name": "current_claims",
+            "type": "u16"
+          },
+          {
+            "name": "is_active",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
       "name": "Relations",
       "type": {
         "kind": "enum",
@@ -1070,6 +1663,30 @@
           },
           {
             "name": "GroupGame"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SocialConnection",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user_a",
+            "type": "pubkey"
+          },
+          {
+            "name": "user_b",
+            "type": "pubkey"
+          },
+          {
+            "name": "interaction_count",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }
