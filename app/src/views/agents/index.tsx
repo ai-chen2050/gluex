@@ -394,12 +394,13 @@ export const AgentsView: FC = () => {
             </label>
 
             <label className="form-control">
-              <span className="label-text text-sm mb-1 text-slate-300">
-                {language === 'en' ? 'Detailed Requirements' : '具体要求'}
+              <span className="label-text text-sm mb-1 text-slate-300 flex justify-between">
+                <span>{language === 'en' ? 'Detailed Requirements' : '具体要求'}</span>
+                <span className="text-indigo-400 text-xs">{language === 'en' ? '* Include contact info for delivery' : '* 建议附带联系方式以便交付'}</span>
               </span>
               <textarea
                 className="textarea textarea-bordered w-full bg-slate-950/50 focus:border-indigo-500 h-24"
-                placeholder={language === 'en' ? 'Format, links to assets, acceptance criteria...' : '内容要求、验收标准等...'}
+                placeholder={language === 'en' ? 'Format, acceptance criteria, and your contact info (Twitter/Email/Telegram)...' : '任务要求、验收标准，以及用于接收交付的联系方式（如Twitter/邮箱）...'}
                 value={requirements}
                 onChange={(e) => setRequirements(e.target.value)}
               />
