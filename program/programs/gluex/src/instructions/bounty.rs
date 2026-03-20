@@ -34,7 +34,6 @@ pub fn publish_bounty(
     bounty.bounty_id = bounty_id;
     bounty.description = description;
     bounty.task_requirements = task_requirements;
-    bounty.incentive_amount = incentive_amount;
     bounty.deadline = deadline;
     bounty.max_claims = max_claims;
     bounty.current_claims = 0;
@@ -57,6 +56,7 @@ pub fn publish_bounty(
     }
 
     let deposited = incentive_amount.saturating_sub(fee);
+    bounty.incentive_amount = deposited;
 
     // transfer fee (if any) to fee pool, then deposit remaining to bounty PDA
     if fee > 0 {
@@ -167,7 +167,7 @@ pub fn verify_and_reward_bounty(
     }
 
     execution.is_approved = true;
-    let amount = ctx.accounts.open_bounty.incentive_amount;
+    let amount = ctx.accounts.open_bounty.incentive_amount.checked_div(ctx.accounts.open_bounty.max_claims as u64).unwrap_or(0);
 
     // Payout logic
     let bounty_account_info = ctx.accounts.open_bounty.to_account_info();
