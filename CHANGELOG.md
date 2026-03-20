@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Fixed bug in `AgentsView` where `b.account.taskRequirements` was mistakenly referenced as `b.account.requirements`, causing requirements to display as empty.
+
 ### Added
 - **Smart Contract (Gamified Bounty & Social System)**
   - Added `OpenBounty` state to support assigning zero/no initial taker tasks.
