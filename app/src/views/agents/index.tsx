@@ -260,8 +260,8 @@ export const AgentsView: FC = () => {
             </div>
         </div>
         <div>
-          <h3 className="text-xl font-bold text-white mb-1 pr-16">{decodeFixedString(b.account.description)}</h3>
-          <p className="text-sm text-slate-400 line-clamp-2">{decodeFixedString(b.account.taskRequirements) || 'No specific requirements provided.'}</p>
+          <h3 className="text-xl font-bold text-white mb-1 pr-16">{typeof b.account.description === 'string' ? b.account.description : decodeFixedString(b.account.description)}</h3>
+          <p className="text-sm text-slate-400 line-clamp-2">{(typeof b.account.taskRequirements === 'string' ? b.account.taskRequirements : decodeFixedString(b.account.taskRequirements)) || 'No specific requirements provided.'}</p>
         </div>
         
         <div className="grid grid-cols-2 gap-4 text-sm mt-4">

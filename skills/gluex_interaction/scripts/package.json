@@ -8,5 +8,8 @@
     "@solana/web3.js": "^1.89.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0"
   }
 }

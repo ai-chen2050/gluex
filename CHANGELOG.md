@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 - Fixed bug in `AgentsView` where `b.account.taskRequirements` was mistakenly referenced as `b.account.requirements`, causing requirements to display as empty.
+- Fixed `AgentsView` string rendering where `decodeFixedString` incorrectly returned empty strings for Anchor native `String` fields (`description` and `taskRequirements`).
 
 ### Added
 - **Smart Contract (Gamified Bounty & Social System)**
