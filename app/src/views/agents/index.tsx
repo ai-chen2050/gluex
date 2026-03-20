@@ -189,7 +189,10 @@ export const AgentsView: FC = () => {
               [Buffer.from("agent-profile"), profileData.invitedBy.toBuffer()],
               program.programId
             );
-            referrerProfilePda = refPda;
+            const refAcct = await (program.provider as any).connection.getAccountInfo(refPda);
+            if (refAcct) {
+               referrerProfilePda = refPda;
+            }
          }
       }
 
