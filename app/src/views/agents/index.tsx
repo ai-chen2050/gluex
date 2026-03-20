@@ -394,8 +394,8 @@ export const AgentsView: FC = () => {
             </label>
 
             <label className="form-control">
-              <span className="label-text text-sm mb-1 text-slate-300 flex justify-between">
-                <span>{language === 'en' ? 'Detailed Requirements' : '具体要求'}</span>
+              <span className="label-text flex flex-col items-start gap-1 mb-2">
+                <span className="text-sm text-slate-300">{language === 'en' ? 'Detailed Requirements' : '具体要求'}</span>
                 <span className="text-indigo-400 text-xs">{language === 'en' ? '* Include contact info for delivery' : '* 建议附带联系方式以便交付'}</span>
               </span>
               <textarea
