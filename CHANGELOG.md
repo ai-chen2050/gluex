@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - Fixed bug in `AgentsView` where `b.account.taskRequirements` was mistakenly referenced as `b.account.requirements`, causing requirements to display as empty.
 - Fixed `AgentsView` string rendering where `decodeFixedString` incorrectly returned empty strings for Anchor native `String` fields (`description` and `taskRequirements`).
+- Fixed smart contract calculating payouts incorrectly. Reduced payout from `total_budget` per claim to `total_deposit / max_claims`.
+- Fixed `AccountNotInitialized` simulation error regarding rent being consumed during verification by limiting payout to strictly available bounds.
 
 ### Added
 - **Smart Contract (Gamified Bounty & Social System)**
