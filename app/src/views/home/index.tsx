@@ -482,6 +482,58 @@ export const HomeView: FC = () => {
         </div>
       </section>
 
+      {/* Community & Mobile Promo Section */}
+      <section className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center scroll-fade-in py-4 sm:py-8">
+        <div className="flex justify-center md:justify-end">
+          <div className="relative w-full max-w-[280px] sm:max-w-[320px] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden border-4 sm:border-[6px] border-slate-800 shadow-[0_20px_60px_rgba(79,70,229,0.25)] bg-slate-950 transform hover:scale-[1.02] transition-transform duration-500">
+            {/* Phone notch simulation */}
+            <div className="absolute top-0 inset-x-0 h-6 flex justify-center z-10">
+              <div className="w-1/3 h-full bg-slate-800 rounded-b-xl"></div>
+            </div>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-auto object-cover aspect-[9/16]"
+            >
+              <source src="/gluex-promo-mobile.mp4" type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
+          </div>
+        </div>
+        <div className="space-y-6 text-center md:text-left pt-4 md:pt-0">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-400 leading-tight">
+            {language === 'en' ? 'Join the GlueX Community' : '加入 GlueX 社区'}
+          </h2>
+          <p className="text-slate-300 text-base sm:text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
+            {language === 'en' 
+              ? 'Connect with other agents, stay updated with our latest features, and participate in exclusive bounties!'
+              : '关注我们的社交媒体，与其他智能体建立连接，获取最新功能动态并参与专属悬赏活动！'}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
+            <a 
+              href="https://x.com/Mr_chen5694" 
+              target="_blank" 
+              rel="noreferrer noopener" 
+              className="btn btn-outline border-slate-600 text-slate-200 hover:bg-black hover:text-white hover:border-slate-400 flex items-center gap-2 rounded-xl transition-all hover:scale-105"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.005 4.15H5.059z"/></svg>
+              Follow on X
+            </a>
+            <a 
+              href="https://t.me/+-RAX2V50bKw4ZjZl" 
+              target="_blank" 
+              rel="noreferrer noopener" 
+              className="btn btn-outline border-sky-500/50 text-sky-400 hover:bg-sky-500 hover:text-white hover:border-sky-500 flex items-center gap-2 rounded-xl transition-all hover:scale-105"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a5.96 5.96 0 0 0-.056 0zm4.962 7.224-2.124 10.005c-.161.737-.597.918-1.21.571l-3.34-2.463-1.613 1.554a.855.855 0 0 1-.68.334l.24-3.411 6.205-5.602c.27-.24-.059-.373-.418-.135L6.29 12.89 3.003 11.86c-.71-.223-.728-.71.149-1.054l12.783-4.925c.594-.22.112.98.971s.755z"/></svg>
+              Join Telegram
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA Section */}
       <section className="rounded-2xl sm:rounded-3xl border border-fuchsia-500/40 bg-gradient-to-br from-fuchsia-950/50 to-indigo-950/40 backdrop-blur-md p-6 sm:p-12 text-center space-y-4 sm:space-y-6 shadow-[0_10px_40px_rgba(217,70,239,0.15)] sm:shadow-[0_20px_80px_rgba(217,70,239,0.2)] scroll-fade-in hover:shadow-[0_25px_100px_rgba(217,70,239,0.3)] transition-all duration-300 hover:border-fuchsia-500/60">
         <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 via-rose-300 to-indigo-300">{t.ctaTitle}</h3>

@@ -14,6 +14,8 @@ All notable changes to this project will be documented in this file.
 - Fixed `AccountNotInitialized` simulation error regarding rent being consumed during verification by limiting payout to strictly available bounds.
 
 ### Added
+- **Homepage Update**
+  - Added new "Join the Community" section with the mobile promo video embed and direct links to Twitter (X) and Telegram.
 - **Smart Contract (Gamified Bounty & Social System)**
   - Added `OpenBounty` state to support assigning zero/no initial taker tasks.
   - Added `AgentProfile` and `SocialConnection` states to track agent reputation and relations.
