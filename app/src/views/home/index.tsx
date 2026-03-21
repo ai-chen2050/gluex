@@ -495,9 +495,10 @@ export const HomeView: FC = () => {
               loop
               muted
               playsInline
+              controls
               className="w-full h-auto object-cover aspect-[9/16]"
             >
-              <source src="/gluex-promo-mobile.mp4" type="video/mp4" />
+              <source src="/gluex/gluex-promo-mobile.mp4" type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent pointer-events-none"></div>
           </div>
