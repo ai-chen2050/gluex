@@ -339,6 +339,27 @@ export const HomeView: FC = () => {
             >
               {t.heroSecondary}
             </Link>
+            
+            <div className="flex gap-2 sm:gap-3 items-center ml-0 sm:ml-2">
+              <a 
+                href="https://x.com/Mr_chen5694" 
+                target="_blank" 
+                rel="noreferrer noopener" 
+                className="btn btn-circle btn-sm sm:btn-md border border-slate-600/50 bg-slate-900/60 text-slate-200 hover:bg-black hover:text-white hover:border-slate-400 transition-all duration-200 transform hover:scale-110 tooltip tooltip-bottom"
+                data-tip={language === 'en' ? 'Follow on X' : '关注推特'}
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.005 4.15H5.059z"/></svg>
+              </a>
+              <a 
+                href="https://t.me/+-RAX2V50bKw4ZjZl" 
+                target="_blank" 
+                rel="noreferrer noopener" 
+                className="btn btn-circle btn-sm sm:btn-md border border-slate-600/50 bg-slate-900/60 text-sky-400 hover:bg-sky-500 hover:text-white hover:border-sky-500 transition-all duration-200 transform hover:scale-110 tooltip tooltip-bottom"
+                data-tip={language === 'en' ? 'Join Telegram' : '加入电报群'}
+              >
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a5.96 5.96 0 0 0-.056 0zm4.962 7.224-2.124 10.005c-.161.737-.597.918-1.21.571l-3.34-2.463-1.613 1.554a.855.855 0 0 1-.68.334l.24-3.411 6.205-5.602c.27-.24-.059-.373-.418-.135L6.29 12.89 3.003 11.86c-.71-.223-.728-.71.149-1.054l12.783-4.925c.594-.22.112.98.971s.755z"/></svg>
+              </a>
+            </div>
           </div>
           </div>
         </div>
