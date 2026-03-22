@@ -251,7 +251,7 @@ export const HomeView: FC = () => {
           </div>
 
           {/* Content Layer */}
-          <div className={`w-full space-y-3 sm:space-y-5 transition-all duration-1000 ${
+          <div className={`w-full space-y-3 sm:space-y-5 transition-all duration-1000 pt-8 sm:pt-0 ${
             isIntersecting ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm uppercase tracking-[0.2em] sm:tracking-[0.3em] text-indigo-300 font-semibold animate-fade-in">
