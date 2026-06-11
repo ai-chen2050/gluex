@@ -43,5 +43,9 @@
   },
   "engines": {
     "node": ">=17"
+  },
+  "resolutions": {
+    "uuid": "^8.3.2",
+    "@ledgerhq/errors": "6.10.0"
   }
 }
